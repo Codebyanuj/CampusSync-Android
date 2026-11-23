@@ -113,6 +113,18 @@ public class AuthManager {
 
     public void createUserWithEmailPassword(String email, String password, String displayName,
                                             ResultListener<FirebaseUser> listener) {
+        createUserWithEmailPassword(email, password, displayName, null, listener);
+    }
+
+    /**
+     * Registration used by the student and faculty sign-up forms.
+     *
+     * {@code profileFields} carries the academic profile (role, college, department, ...). Role is
+     * stored for display only: Firestore rules reject any later change to it by the owner.
+     */
+    public void createUserWithEmailPassword(String email, String password, String displayName,
+                                            Map<String, Object> profileFields,
+                                            ResultListener<FirebaseUser> listener) {
         firebaseAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (!task.isSuccessful()) {
@@ -133,9 +145,75 @@ public class AuthManager {
                         if (!profileTask.isSuccessful()) {
                             Log.w(TAG, "updateProfile:failure", profileTask.getException());
                         }
-                        createUserDocument(user, displayName, listener);
+                        createUserDocument(user, displayName, profileFields, listener);
                     });
                 });
+    }
+
+    // ---------------- Email verification / password reset ----------------
+
+    /** Sends the account-verification email to the signed-in user (no-op when already verified). */
+    public void sendVerificationEmail(ActionListener listener) {
+        FirebaseUser user = getCurrentUser();
+        if (user == null) {
+            if (listener != null) listener.onComplete(new IllegalStateException("Not signed in"));
+            return;
+        }
+        if (user.isEmailVerified()) {
+            if (listener != null) listener.onComplete(null);
+            return;
+        }
+        user.sendEmailVerification().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Log.w(TAG, "sendVerificationEmail:failure", task.getException());
+                if (listener != null) listener.onComplete(task.getException());
+                return;
+            }
+            Log.d(TAG, "sendVerificationEmail:success");
+            if (listener != null) listener.onComplete(null);
+        });
+    }
+
+    public void sendPasswordResetEmail(String email, ActionListener listener) {
+        firebaseAuth.sendPasswordResetEmail(email).addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Log.w(TAG, "sendPasswordResetEmail:failure", task.getException());
+                if (listener != null) listener.onComplete(task.getException());
+                return;
+            }
+            Log.d(TAG, "sendPasswordResetEmail:success");
+            if (listener != null) listener.onComplete(null);
+        });
+    }
+
+    /** Reloads the cached user so a freshly clicked verification link is picked up. */
+    public void reloadUser(ResultListener<FirebaseUser> listener) {
+        FirebaseUser user = getCurrentUser();
+        if (user == null) {
+            if (listener != null) listener.onComplete(null, new IllegalStateException("Not signed in"));
+            return;
+        }
+        user.reload().addOnCompleteListener(task -> {
+            if (!task.isSuccessful()) {
+                Log.w(TAG, "reloadUser:failure", task.getException());
+                if (listener != null) listener.onComplete(null, task.getException());
+                return;
+            }
+            FirebaseUser refreshed = firebaseAuth.getCurrentUser();
+            currentUserLive.postValue(refreshed);
+            updateAuthState();
+            if (refreshed != null && refreshed.isEmailVerified()) {
+                Map<String, Object> fields = new HashMap<>();
+                fields.put("emailVerified", true);
+                FirestoreManager.getInstance().updateUserFields(fields, null);
+            }
+            if (listener != null) listener.onComplete(refreshed, null);
+        });
+    }
+
+    public boolean isEmailVerified() {
+        FirebaseUser user = getCurrentUser();
+        return user != null && user.isEmailVerified();
     }
 
     public void signOut() {
@@ -205,7 +283,9 @@ public class AuthManager {
 
     // ---------------- Internal ----------------
 
-    private void createUserDocument(FirebaseUser user, String displayName, ResultListener<FirebaseUser> listener) {
+    private void createUserDocument(FirebaseUser user, String displayName,
+                                    Map<String, Object> profileFields,
+                                    ResultListener<FirebaseUser> listener) {
         Map<String, Object> profile = new HashMap<>();
         profile.put("email", user.getEmail());
         String name = displayName != null && !displayName.isEmpty()
@@ -213,6 +293,14 @@ public class AuthManager {
                 : (user.getDisplayName() != null ? user.getDisplayName() : user.getEmail());
         profile.put("displayName", name);
         profile.put("createdAt", FieldValue.serverTimestamp());
+        profile.put("role", com.campussync.app.model.UserProfile.ROLE_STUDENT);
+        profile.put("accountStatus", com.campussync.app.model.UserProfile.STATUS_ACTIVE);
+        profile.put("verificationStatus",
+                com.campussync.app.model.UserProfile.VERIFICATION_UNVERIFIED);
+        profile.put("emailVerified", false);
+        if (profileFields != null) {
+            profile.putAll(profileFields);
+        }
 
         firestoreManager.createUserProfile(user.getUid(), profile, error -> {
             if (error != null) {
@@ -223,6 +311,8 @@ public class AuthManager {
             currentUserLive.postValue(user);
             updateAuthState();
             registerFcmToken(null);
+            // Verification mail is best effort: the user can resend it from the verify screen.
+            sendVerificationEmail(null);
             if (listener != null) listener.onComplete(user, null);
         });
     }

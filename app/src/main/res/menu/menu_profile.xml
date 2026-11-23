@@ -3,14 +3,33 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <item
+        android:id="@+id/action_edit_profile"
+        android:title="@string/btn_edit_profile"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_view_public_profile"
+        android:title="@string/title_public_profile"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_verification"
+        android:title="@string/title_verification"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_admin_requests"
+        android:title="@string/title_admin_verifications"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_settings"
-        android:icon="@drawable/ic_settings"
         android:title="@string/nav_settings"
-        app:showAsAction="ifRoom" />
+        app:showAsAction="never" />
 
     <item
         android:id="@+id/action_sign_out"
         android:title="@string/btn_sign_out"
         app:showAsAction="never" />
-
 </menu>

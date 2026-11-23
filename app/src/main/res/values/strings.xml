@@ -74,6 +74,113 @@
     <string name="settings_cache_summary">Clear locally cached data</string>
     <string name="cache_cleared">Local cache cleared</string>
 
+    <!-- Auth: login / registration -->
+    <string name="subtitle_login">Sign in to your campus account</string>
+    <string name="subtitle_register">Create your student or faculty account</string>
+    <string name="btn_student">Student</string>
+    <string name="btn_faculty">Faculty</string>
+    <string name="hint_college">College / University</string>
+    <string name="hint_department">Department</string>
+    <string name="hint_course">Course</string>
+    <string name="hint_semester">Semester</string>
+    <string name="hint_academic_year">Academic year</string>
+    <string name="hint_designation">Designation</string>
+    <string name="hint_bio">Bio (optional)</string>
+    <string name="hint_skills">Skills (comma separated)</string>
+    <string name="hint_interests">Interests (comma separated)</string>
+    <string name="hint_id_number">College ID number</string>
+    <string name="hint_verification_note">Anything the reviewer should know (optional)</string>
+    <string name="role_student">Student</string>
+    <string name="role_faculty">Faculty</string>
+    <string name="title_forgot_password">Reset password</string>
+    <string name="forgot_password_link">Forgot password?</string>
+    <string name="hint_reset_email">Account email</string>
+    <string name="btn_send_reset_link">Send reset link</string>
+    <string name="forgot_password_description">Enter the email you registered with and we\'ll send you a reset link.</string>
+    <string name="please_wait">Please wait…</string>
+
+    <string name="error_name_short">Name is too short</string>
+    <string name="error_name_long">Name is too long</string>
+    <string name="error_role_required">Select a role</string>
+    <string name="error_college_required">Select your college</string>
+    <string name="error_department_required">Select your department</string>
+    <string name="error_course_required">Select your course</string>
+    <string name="error_semester_required">Select your semester</string>
+    <string name="error_academic_year_required">Select your academic year</string>
+    <string name="error_designation_required">Select your designation</string>
+    <string name="error_bio_long">Bio must be 300 characters or fewer</string>
+    <string name="error_id_number_required">Enter your college ID number</string>
+    <string name="error_id_number_short">ID number looks too short</string>
+
+    <!-- Splash / onboarding -->
+    <string name="splash_tagline">Your campus, in sync</string>
+    <string name="onboarding_title">Welcome to CampusSync</string>
+    <string name="onboarding_subtitle">One account for your classes, events and campus groups.</string>
+    <string name="onboarding_feature_events">Never miss a campus event</string>
+    <string name="onboarding_feature_events_detail">Browse and RSVP to events from every department in one feed.</string>
+    <string name="onboarding_feature_groups">Find your people</string>
+    <string name="onboarding_feature_groups_detail">Join student and faculty groups that match your interests.</string>
+    <string name="onboarding_feature_profile">A verified campus identity</string>
+    <string name="onboarding_feature_profile_detail">Students and faculty get a verification badge after review.</string>
+    <string name="btn_get_started">Get started</string>
+    <string name="skip">Skip</string>
+
+    <!-- Email verification -->
+    <string name="verify_email_title">Verify your email</string>
+    <string name="verify_email_message">We sent a verification link to your inbox. Open it, then come back and refresh.</string>
+    <string name="btn_i_verified">I\'ve verified my email</string>
+    <string name="btn_resend_email">Resend email</string>
+
+    <!-- Profile details -->
+    <string name="profile_academic">Academic details</string>
+    <string name="profile_about">About</string>
+    <string name="profile_bio_empty">No bio added yet</string>
+    <string name="profile_no_college">No college added</string>
+    <string name="profile_no_department">No department added</string>
+    <string name="profile_no_course">No course added</string>
+    <string name="profile_no_academic_year">No academic year added</string>
+    <string name="profile_semester_value">Semester %1$d</string>
+    <string name="btn_edit_profile">Edit profile</string>
+    <string name="title_edit_profile">Edit profile</string>
+    <string name="title_public_profile">Profile</string>
+    <string name="profile_not_found">This profile could not be found.</string>
+    <string name="btn_save">Save</string>
+    <string name="btn_change_photo">Change photo</string>
+    <string name="edit_role_locked_student">You are registered as a student. Academic details below can be edited; your role and verification are managed by your college.</string>
+    <string name="edit_role_locked_faculty">You are registered as faculty. Your role and verification are managed by your college.</string>
+    <string name="account_suspended">This account is suspended. Contact your campus administrator.</string>
+    <string name="profile_photo_description">Profile photo</string>
+
+    <!-- Verification -->
+    <string name="title_verification">Verification</string>
+    <string name="verification_badge_student">Verified student</string>
+    <string name="verification_badge_faculty">Verified faculty</string>
+    <string name="verification_badge_pending">Pending verification</string>
+    <string name="verification_badge_unverified">Unverified</string>
+    <string name="verification_badge_verified">Verified</string>
+    <string name="verification_manage">Manage verification</string>
+    <string name="verification_student_hint">Send your request to be verified as a student of your college.</string>
+    <string name="verification_faculty_hint">Send your request to be verified as faculty of your college.</string>
+    <string name="verification_status_verified">Verified</string>
+    <string name="verification_status_verified_student">Your student status has been approved by an administrator.</string>
+    <string name="verification_status_verified_faculty">Your faculty status has been approved by an administrator.</string>
+    <string name="verification_status_pending">Pending review</string>
+    <string name="verification_status_pending_detail">An administrator is reviewing your request. You will be notified when it is decided.</string>
+    <string name="verification_status_unverified">Not verified yet</string>
+    <string name="verification_status_unverified_detail">Submit your college ID to request a verification badge.</string>
+    <string name="verification_review_note">Reviewer note: %1$s</string>
+    <string name="btn_submit_request">Submit request</string>
+
+    <!-- Administrator review -->
+    <string name="title_admin_verifications">Verification requests</string>
+    <string name="empty_admin_verifications">No pending verification requests</string>
+    <string name="verify_approve">Approve</string>
+    <string name="verify_reject">Reject</string>
+    <string name="verify_approve_title">Approve request</string>
+    <string name="verify_reject_title">Reject request</string>
+    <string name="verify_approve_message">Approve verification for %1$s?</string>
+    <string name="verify_reject_message">Reject verification for %1$s?</string>
+
     <!-- Common -->
     <string name="retry">Retry</string>
     <string name="cancel">Cancel</string>

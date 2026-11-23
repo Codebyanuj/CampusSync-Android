@@ -24,14 +24,15 @@ import com.campussync.app.firebase.AuthManager;
 import com.campussync.app.ui.auth.AuthViewModel;
 
 /**
- * Single-activity host. Owns the NavController, bottom navigation and the auth gate:
- * signed-out users only see the auth screen; signed-in users see the main tabs.
+ * Single-activity host. Owns the NavController, bottom navigation and session routing:
+ * splash -> onboarding / auth / verification / main tabs, depending on the restored session.
  */
 public class MainActivity extends AppCompatActivity {
 
     private ActivityMainBinding binding;
     private NavController navController;
     private boolean notificationPermissionRequested;
+    private boolean emailVerificationScreenVisible;
 
     private final ActivityResultLauncher<String> notificationPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
@@ -63,10 +64,10 @@ public class MainActivity extends AppCompatActivity {
             if (state == null) return;
             switch (state) {
                 case AUTHENTICATED:
-                    showMainContent();
+                    onAuthenticated();
                     break;
                 case UNAUTHENTICATED:
-                    showAuthScreen();
+                    onUnauthenticated();
                     break;
                 case LOADING:
                 case ERROR:
@@ -86,33 +87,79 @@ public class MainActivity extends AppCompatActivity {
                 || destinationId == R.id.profileFragment;
     }
 
+    /** Destinations that only make sense while signed in. */
+    private boolean isSignedInDestination(int destinationId) {
+        return isMainDestination(destinationId)
+                || destinationId == R.id.eventDetailFragment
+                || destinationId == R.id.groupDetailFragment
+                || destinationId == R.id.settingsFragment
+                || destinationId == R.id.editProfileFragment
+                || destinationId == R.id.userProfileFragment
+                || destinationId == R.id.verificationFragment
+                || destinationId == R.id.adminVerificationsFragment
+                || destinationId == R.id.verifyEmailFragment;
+    }
+
     private void updateBottomNavVisibility(int destinationId) {
         binding.bottomNavigation.setVisibility(isMainDestination(destinationId)
                 ? View.VISIBLE
                 : View.GONE);
     }
 
-    private void showMainContent() {
-        if (navController.getCurrentDestination() == null) return;
-        if (navController.getCurrentDestination().getId() == R.id.authFragment) {
-            NavOptions options = new NavOptions.Builder()
-                    .setPopUpTo(R.id.nav_graph, true)
-                    .setLaunchSingleTop(true)
-                    .build();
-            navController.navigate(R.id.homeFragment, null, options);
+    private int currentDestinationId() {
+        return navController.getCurrentDestination() != null
+                ? navController.getCurrentDestination().getId()
+                : 0;
+    }
+
+    /**
+     * Signed in: keep unverified accounts on the verification gate, otherwise send entry screens
+     * to the main tabs. The splash screen routes itself and is left alone.
+     */
+    private void onAuthenticated() {
+        int current = currentDestinationId();
+        if (current == 0 || current == R.id.splashFragment || current == R.id.onboardingFragment) {
+            return;
+        }
+        boolean verified;
+        try {
+            verified = AuthManager.getInstance().isEmailVerified();
+        } catch (IllegalStateException notConfigured) {
+            return;
+        }
+        if (!verified) {
+            if (current != R.id.verifyEmailFragment) {
+                navigateTo(R.id.verifyEmailFragment);
+            }
+            return;
+        }
+        if (current == R.id.authFragment || current == R.id.verifyEmailFragment) {
+            navigateTo(R.id.homeFragment);
         }
         requestNotificationPermission();
     }
 
-    private void showAuthScreen() {
-        if (navController.getCurrentDestination() != null
-                && navController.getCurrentDestination().getId() == R.id.authFragment) {
-            return;
+    /** Signed out: leave any signed-in screen for the auth screen. */
+    private void onUnauthenticated() {
+        int current = currentDestinationId();
+        if (current == 0) return;
+        if (isSignedInDestination(current) || emailVerificationScreenVisible) {
+            navigateTo(R.id.authFragment);
         }
+    }
+
+    private void navigateTo(int destinationId) {
+        if (currentDestinationId() == destinationId) return;
         NavOptions options = new NavOptions.Builder()
                 .setPopUpTo(R.id.nav_graph, true)
+                .setLaunchSingleTop(true)
                 .build();
-        navController.navigate(R.id.authFragment, null, options);
+        navController.navigate(destinationId, null, options);
+    }
+
+    /** Called by the verification gate so signing out returns to the auth screen. */
+    public void setEmailVerificationScreenVisible(boolean visible) {
+        emailVerificationScreenVisible = visible;
     }
 
     /** Asks for POST_NOTIFICATIONS on Android 13+ once the user is signed in. */
@@ -139,13 +186,14 @@ public class MainActivity extends AppCompatActivity {
     private void handleNotificationIntent(Intent intent) {
         if (intent == null || !intent.hasExtra("screen")) return;
         String screen = intent.getStringExtra("screen");
-        if (screen == null || navController.getCurrentDestination() == null) return;
-        if (navController.getCurrentDestination().getId() == R.id.authFragment) return;
+        int current = currentDestinationId();
+        if (screen == null || !isSignedInDestination(current)) return;
+        if (current == R.id.verifyEmailFragment) return;
         int destination = R.id.homeFragment;
         if ("events".equals(screen)) destination = R.id.eventsFragment;
         else if ("groups".equals(screen)) destination = R.id.groupsFragment;
         else if ("profile".equals(screen)) destination = R.id.profileFragment;
-        navController.navigate(destination);
+        if (current != destination) navController.navigate(destination);
     }
 
     @Override

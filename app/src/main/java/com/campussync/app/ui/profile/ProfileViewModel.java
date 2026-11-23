@@ -6,25 +6,41 @@ import androidx.lifecycle.ViewModel;
 
 import com.campussync.app.firebase.AuthManager;
 import com.campussync.app.firebase.FirestoreManager;
+import com.campussync.app.firebase.UserRepository;
 import com.campussync.app.model.Event;
 import com.campussync.app.model.Group;
+import com.campussync.app.model.UserProfile;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * ViewModel for the profile tab: identity summary plus the user's joined events and groups.
+ * ViewModel for the profile tab: the profile document plus the user's joined events and groups.
  */
 public class ProfileViewModel extends ViewModel {
 
     private final FirestoreManager firestoreManager = FirestoreManager.getInstance();
+    private final UserRepository userRepository = UserRepository.getInstance();
+
+    private final MutableLiveData<UserProfile> profile = new MutableLiveData<>();
+    private final MutableLiveData<Boolean> admin = new MutableLiveData<>(false);
     private final MutableLiveData<List<Event>> joinedEvents = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<List<Group>> joinedGroups = new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(true);
+    private final MutableLiveData<String> error = new MutableLiveData<>();
 
+    private ListenerRegistration profileRegistration;
     private ListenerRegistration eventsRegistration;
     private ListenerRegistration groupsRegistration;
+
+    public LiveData<UserProfile> getProfile() {
+        return profile;
+    }
+
+    public LiveData<Boolean> getAdmin() {
+        return admin;
+    }
 
     public LiveData<List<Event>> getJoinedEvents() {
         return joinedEvents;
@@ -38,21 +54,24 @@ public class ProfileViewModel extends ViewModel {
         return loading;
     }
 
-    public String getDisplayName() {
-        com.google.firebase.auth.FirebaseUser user = AuthManager.getInstance().getCurrentUser();
-        if (user == null) return "";
-        if (user.getDisplayName() != null && !user.getDisplayName().isEmpty()) {
-            return user.getDisplayName();
-        }
-        return user.getEmail() != null ? user.getEmail() : "Campus Sync user";
-    }
-
-    public String getEmail() {
-        com.google.firebase.auth.FirebaseUser user = AuthManager.getInstance().getCurrentUser();
-        return user != null && user.getEmail() != null ? user.getEmail() : "";
+    public LiveData<String> getError() {
+        return error;
     }
 
     public void startListening() {
+        if (profileRegistration == null) {
+            String uid = AuthManager.getInstance().getCurrentUserId();
+            profileRegistration = userRepository.listenToProfile(uid, (value, exception) -> {
+                loading.setValue(false);
+                if (exception != null) {
+                    error.setValue("Could not load your profile.");
+                    return;
+                }
+                profile.setValue(value);
+            });
+            userRepository.checkIsAdmin((isAdmin, exception) ->
+                    admin.setValue(Boolean.TRUE.equals(isAdmin)));
+        }
         if (eventsRegistration == null) {
             eventsRegistration = firestoreManager.listenToEvents((events, exception) -> {
                 loading.setValue(false);
@@ -102,6 +121,10 @@ public class ProfileViewModel extends ViewModel {
     @Override
     protected void onCleared() {
         super.onCleared();
+        if (profileRegistration != null) {
+            profileRegistration.remove();
+            profileRegistration = null;
+        }
         if (eventsRegistration != null) {
             eventsRegistration.remove();
             eventsRegistration = null;

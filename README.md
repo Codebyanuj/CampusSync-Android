@@ -26,7 +26,10 @@ Module 1 — foundation and authentication:
 1. Create a Firebase project and add an Android app with package `com.campussync.app`.
 2. Download `google-services.json` into `app/google-services.json`.
    It is git-ignored on purpose and **must not be committed**.
-3. Enable **Authentication → Email/Password**, **Cloud Firestore** and **Storage** in the console.
+3. Enable **Authentication → Email/Password** and **Cloud Firestore** in the console.
+   **Storage is optional:** on projects created after October 2024 a bucket can only be created on
+   the Blaze plan, so the app never assumes one exists. Every image is loaded from the `imageUrl`
+   field, so a plain HTTPS link works without Storage and no `storage.rules` are needed.
 4. Build from Android Studio, or:
 
    ```bash
@@ -73,6 +76,14 @@ service cloud.firestore {
 
 Membership writes are transactional in the client, but a Cloud Function should enforce the same
 rules server-side for trusted operations.
+
+## Images without Cloud Storage
+
+`FirestoreManager.getStorageOrNull()` returns `null` instead of throwing when the project has no
+Storage bucket, and `getStorageReference()` returns `null` in that case — callers must check it.
+Event and group covers are just URLs (`imageUrl` in Firestore) rendered with Glide, so they can
+point at any public host. Uploads from the app need a bucket (Blaze plan) or a third-party image
+host; neither is required for the current module.
 
 ## Structure
 

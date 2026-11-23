@@ -38,11 +38,9 @@ public class FirestoreManager {
     public static final String FIELD_MEMBERS = "memberIds";
 
     private final FirebaseFirestore db;
-    private final FirebaseStorage storage;
 
     private FirestoreManager() {
         db = FirebaseFirestore.getInstance();
-        storage = FirebaseStorage.getInstance();
     }
 
     public static FirestoreManager getInstance() {
@@ -58,10 +56,6 @@ public class FirestoreManager {
 
     public FirebaseFirestore getDb() {
         return db;
-    }
-
-    public FirebaseStorage getStorage() {
-        return storage;
     }
 
     private static String currentUidOrNull() {
@@ -306,8 +300,26 @@ public class FirestoreManager {
 
     // ---------------- Storage / cache ----------------
 
+    /**
+     * Firebase Storage is optional. Creating a bucket on a new project requires the Blaze plan,
+     * and {@link FirebaseStorage#getInstance()} throws when no default bucket is configured, so
+     * it is resolved lazily and the caller must handle a {@code null} result. Every image in the
+     * app is rendered from an ordinary HTTPS URL stored in Firestore, so screens keep working
+     * with Storage disabled.
+     */
+    public FirebaseStorage getStorageOrNull() {
+        try {
+            return FirebaseStorage.getInstance();
+        } catch (IllegalStateException e) {
+            Log.w(TAG, "Firebase Storage is unavailable (no default bucket configured)", e);
+            return null;
+        }
+    }
+
+    /** @return the reference, or {@code null} when Storage is not configured. */
     public StorageReference getStorageReference(String path) {
-        return storage.getReference().child(path);
+        FirebaseStorage storage = getStorageOrNull();
+        return storage != null ? storage.getReference().child(path) : null;
     }
 
     /**
