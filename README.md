@@ -1,6 +1,6 @@
 # CampusSync (Android)
 
-Campus Sync is a campus community app: students sign in, discover and RSVP to events, and join groups.
+Campus Sync (an advanced notice board for Android) is a campus community app: students sign in, discover and RSVP to events, and join groups.
 Built in Java with XML layouts, MVVM, Material Design 3 and Firebase.
 
 - **Package:** `com.campussync.app`
