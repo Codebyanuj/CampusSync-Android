@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/authFragment">
+
+    <fragment
+        android:id="@+id/authFragment"
+        android:name="com.campussync.app.ui.auth.AuthFragment"
+        android:label="@string/title_login"
+        tools:layout="@layout/fragment_auth" />
+
+    <fragment
+        android:id="@+id/homeFragment"
+        android:name="com.campussync.app.ui.home.HomeFragment"
+        android:label="@string/nav_home"
+        tools:layout="@layout/fragment_home">
+        <argument
+            android:name="screen"
+            app:argType="string"
+            app:nullable="true"
+            android:defaultValue="@null" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/eventsFragment"
+        android:name="com.campussync.app.ui.events.EventsFragment"
+        android:label="@string/nav_events"
+        tools:layout="@layout/fragment_events" />
+
+    <fragment
+        android:id="@+id/eventDetailFragment"
+        android:name="com.campussync.app.ui.events.EventDetailFragment"
+        android:label="@string/event_details"
+        tools:layout="@layout/fragment_event_detail">
+        <argument
+            android:name="eventId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/groupsFragment"
+        android:name="com.campussync.app.ui.groups.GroupsFragment"
+        android:label="@string/nav_groups"
+        tools:layout="@layout/fragment_groups" />
+
+    <fragment
+        android:id="@+id/groupDetailFragment"
+        android:name="com.campussync.app.ui.groups.GroupDetailFragment"
+        android:label="Group details"
+        tools:layout="@layout/fragment_group_detail">
+        <argument
+            android:name="groupId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/profileFragment"
+        android:name="com.campussync.app.ui.profile.ProfileFragment"
+        android:label="@string/nav_profile"
+        tools:layout="@layout/fragment_profile" />
+
+    <fragment
+        android:id="@+id/settingsFragment"
+        android:name="com.campussync.app.ui.settings.SettingsFragment"
+        android:label="@string/title_settings"
+        tools:layout="@layout/fragment_settings" />
+
+</navigation>
