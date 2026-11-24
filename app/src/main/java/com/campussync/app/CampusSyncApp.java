@@ -14,6 +14,7 @@ public class CampusSyncApp extends Application {
     public static final String CHANNEL_EVENTS = "campus_sync_events";
     public static final String CHANNEL_GROUPS = "campus_sync_groups";
     public static final String CHANNEL_GENERAL = "campus_sync_general";
+    public static final String CHANNEL_MESSAGES = "campus_sync_messages";
 
     @Override
     public void onCreate() {
@@ -42,6 +43,13 @@ public class CampusSyncApp extends Application {
             name = getString(R.string.title_settings);
             description = "General notifications";
             channel = new NotificationChannel(CHANNEL_GENERAL, name, NotificationManager.IMPORTANCE_LOW);
+            channel.setDescription(description);
+            manager.createNotificationChannel(channel);
+
+            name = getString(R.string.notification_channel_messages);
+            description = "Direct messages and group chats";
+            channel = new NotificationChannel(CHANNEL_MESSAGES, name,
+                    NotificationManager.IMPORTANCE_HIGH);
             channel.setDescription(description);
             manager.createNotificationChannel(channel);
         }

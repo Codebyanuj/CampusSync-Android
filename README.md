@@ -1,6 +1,6 @@
 # CampusSync (Android)
 
-Campus Sync (an advanced notice board for Android) is a campus community app: students sign in, discover and RSVP to events, and join groups.
+Campus Sync (an advanced notice board for Android) is a campus community app: students and faculty sign in, discover and RSVP to events, join groups and carry a verified campus profile.
 Built in Java with XML layouts, MVVM, Material Design 3 and Firebase.
 
 - **Package:** `com.campussync.app`
@@ -8,29 +8,76 @@ Built in Java with XML layouts, MVVM, Material Design 3 and Firebase.
 - **Stack:** Android Views + ViewBinding, MVVM (ViewModel/LiveData), Navigation Component,
   Firebase Auth, Cloud Firestore, Cloud Storage, Firebase Cloud Messaging
 
-## Current module
+## Authentication and profiles
 
-Module 1 — foundation and authentication:
+- Splash screen that routes on the restored session, and a one-time onboarding flow
+- Student and faculty registration with a shared validated form (role, college, department,
+  course/semester or designation, academic year)
+- Email/password sign-in with remembered email, mapped Firebase error messages, and sign-out
+- Forgot password (reset email), email verification gate with resend + refresh
+- Profile: name, photo, email, department, course, semester, academic year, designation,
+  bio, skills, interests, role, account status and verification status
+- Edit profile with the same validation as registration, and profile photo upload to
+  Firebase Storage (`profile_photos/{uid}/avatar.jpg`, downscaled before upload)
+- Profile settings: edit profile, verification centre, change password and sign-out
+- Verification: student/faculty requests, live status tracking, admin approve/reject queue and
+  verified badges rendered from admin-approved status only
+- Suspended accounts are signed out when they reach the main screens
+- Firestore and Storage security rules enforce role-based access (see below)
 
-- Email/password sign-in and registration with inline validation and mapped Firebase error messages
-- Firestore user profile created on registration (`users/{uid}`)
-- Session persistence with an auth gate: signed-out users only see the auth screen
-- Bottom navigation shell (Home, Events, Groups, Profile) with Home, Events, Groups and Profile screens
-- Event list + detail with RSVP, group list + detail with membership, both written inside Firestore transactions
-- Profile summary (joined events/groups counts) and Settings (notification preference, cache clear)
-- FCM service with notification channels, token stored on the user document, and notification-tap routing
-- Loading / empty / error states on every data screen
+## Social community
+
+- **Feed** (Social tab): create text and image posts, like/unlike, comment and reply, share,
+  bookmark, edit or delete your own posts, report posts. Three feeds: your college, people you
+  follow, and trending (most liked). The first page is live and older pages load on scroll.
+- **Ghost mode**: a post can be published anonymously. The public document then has no
+  `authorId`; the attribution is written to `anonymousAuthors/{postId}` and is readable only by
+  its author and administrators, so no client query can join anonymous content to an account.
+- **Stories**: image and video stories, a viewer with progress segments, tap left/right
+  navigation, view tracking, replies, deletion of your own story and 24-hour expiry driven by the
+  trusted server timestamp.
+- **Message boards** (from the feed toolbar): create boards and discussions, upvote/downvote,
+  comment and reply, prefix search over boards and discussions, trending discussions across all
+  boards, anonymous discussions and reporting.
+- **Moderation**: every report lands in `reports/{id}`. Administrators see the queue from
+  Profile → *Reported content*, can resolve or dismiss a report, and can reveal the restricted
+  author of anonymously published content.
+
+Following a classmate from their public profile feeds the *Following* tab.
+
+## Private and group messaging
+
+- **Chats tab** (third item in the bottom bar, with an unread badge): every thread you belong to,
+  showing the last message, time and unread count. Blocked partners' direct threads are hidden.
+- **One-to-one chats**: real-time text, image and document attachments (up to 25 MB), timestamps
+  in the bubble, read receipts, typing indicators, online / last-seen status, paginated history
+  (25 messages per page, older pages load as you scroll up).
+- **Groups**: create with a name, photo and member list; admins can rename, add or remove members
+  and promote or demote other admins; every member can mute, leave and read the full history.
+- **Blocking and reporting**: blocking is mutual for direct threads (rules refuse new messages in
+  either direction) and hides the thread; users and individual messages can be reported into the
+  same `reports` queue administrators already review.
+- **Notifications**: direct and group messages, and group invitations, arrive over FCM. The phone
+  also honours the in-app switches in Settings for push, message and group-invite categories.
 
 ## Setup
 
 1. Create a Firebase project and add an Android app with package `com.campussync.app`.
 2. Download `google-services.json` into `app/google-services.json`.
    It is git-ignored on purpose and **must not be committed**.
-3. Enable **Authentication → Email/Password** and **Cloud Firestore** in the console.
-   **Storage is optional:** on projects created after October 2024 a bucket can only be created on
-   the Blaze plan, so the app never assumes one exists. Every image is loaded from the `imageUrl`
-   field, so a plain HTTPS link works without Storage and no `storage.rules` are needed.
-4. Build from Android Studio, or:
+3. Enable **Authentication → Email/Password**, **Cloud Firestore** and **Cloud Storage** in the
+   console. Storage hosts profile photos. On projects created after October 2024 a bucket can only
+   be created on the Blaze plan; when no bucket exists the app reports a clear error on upload
+   instead of crashing, and every other image is loaded from the `imageUrl` URL field.
+4. Deploy the security rules in this repository:
+
+   ```bash
+   firebase deploy --only firestore:rules,storage
+   ```
+
+5. Create the first administrator by adding a document `admins/{uid}` in the Firebase console
+   (Firestore → `admins` collection). The verification review menu appears for these accounts.
+6. Build from Android Studio, or:
 
    ```bash
    ./gradlew :app:assembleDebug
@@ -43,67 +90,125 @@ Module 1 — foundation and authentication:
 
 | Collection | Fields |
 | --- | --- |
-| `users/{uid}` | `email`, `displayName`, `createdAt`, `fcmTokens[]` |
+| `users/{uid}` | `email`, `displayName`, `photoUrl`, `role` (`student`/`faculty`), `college`, `department`, `course`, `semester`, `academicYear`, `designation`, `bio`, `skills[]`, `interests[]`, `accountStatus`, `verificationStatus`, `verifiedRole`, `emailVerified`, `fcmTokens[]`, `createdAt`, `updatedAt` |
+| `verificationRequests/{id}` | `uid`, `name`, `email`, `role`, `college`, `department`, `course`, `semester`, `academicYear`, `designation`, `idNumber`, `note`, `status` (`pending`/`approved`/`rejected`), `submittedAt`, `reviewedAt`, `reviewedBy`, `reviewNote` |
+| `admins/{uid}` | Marker document; presence grants administrator access |
 | `events/{eventId}` | `title`, `description`, `location`, `startDate`, `endDate`, `imageUrl`, `organizerId`, `attendeeIds[]` |
 | `groups/{groupId}` | `name`, `description`, `imageUrl`, `memberIds[]`, `createdAt` |
+| `posts/{postId}` | `authorId` (absent for ghost posts), `authorName`, `authorPhotoUrl`, `authorRole`, `college`, `anonymous`, `content`, `imageUrls[]`, `likeCount`, `commentCount`, `shareCount`, `edited`, `createdAt`, `updatedAt` |
+| `posts/{postId}/likes/{uid}` | `createdAt` — one document per liker, id is the user id |
+| `posts/{postId}/comments/{commentId}` | `authorId` (absent when anonymous), `authorName`, `authorPhotoUrl`, `anonymous`, `content`, `parentId`, `createdAt` |
+| `users/{uid}/bookmarks/{postId}` | `postId`, `preview`, `authorName`, `savedAt` |
+| `users/{uid}/following/{targetUid}` | `followingId`, `since` |
+| `stories/{storyId}` | `authorId`, `authorName`, `authorPhotoUrl`, `mediaUrl`, `mediaType` (`image`/`video`), `viewCount`, `createdAt` (server timestamp) |
+| `stories/{storyId}/views/{uid}` | `viewedAt` — idempotency key for view tracking |
+| `stories/{storyId}/replies/{replyId}` | `authorId`, `authorName`, `content`, `createdAt` |
+| `boards/{boardId}` | `name`, `nameLower`, `description`, `college`, `createdBy`, `discussionCount`, `createdAt` |
+| `boards/{boardId}/discussions/{discussionId}` | `boardId`, `title`, `titleLower`, `body`, `authorId` (absent when anonymous), `authorName`, `college`, `anonymous`, `upvoteCount`, `downvoteCount`, `commentCount`, `createdAt`, `lastActivityAt` |
+| `boards/{boardId}/discussions/{id}/votes/{uid}` | `value` (`1` / `-1`), `createdAt` |
+| `boards/{boardId}/discussions/{id}/comments/{commentId}` | Same shape as post comments, plus `discussionId` in the client model |
+| `anonymousAuthors/{contentId}` | `ownerId`, `contentType`, `targetId`, `createdAt` — restricted attribution |
+| `reports/{reportId}` | `targetType` (also `user` and `message`), `targetId`, `targetLabel`, `reason`, `details`, `reporterId`, `status` (`open`/`resolved`/`dismissed`), `createdAt` |
+| `conversations/{conversationId}` | `type` (`direct`/`group`), `title`, `photoUrl`, `memberIds[]`, `adminIds[]`, `memberNames{}`, `memberPhotos{}`, `unreadCounts{}`, `ownerId`, `directKey`, `directA`, `directB`, `memberCount`, `lastMessage`, `lastMessageAt`, `lastSenderId`, `createdAt`, `updatedAt` |
+| `conversations/{id}/members/{uid}` | `name`, `photoUrl`, `role` (`admin`/`member`), `muted`, `unreadCount`, `lastReadAt`, `joinedAt` — the row security rules use to authorise access |
+| `conversations/{id}/messages/{messageId}` | `conversationId`, `senderId`, `senderName`, `senderPhotoUrl`, `type` (`text`/`image`/`document`/`system`), `text`, `attachmentUrl`, `attachmentName`, `attachmentSize`, `mimeType`, `readBy[]`, `createdAt` |
+| `conversations/{id}/typing/{uid}` | `name`, `typingAt` (stale after 6 seconds) |
+| `users/{uid}/blocked/{targetUid}` | `name`, `blockedAt` — private to the blocker |
+| `presence/{uid}` | `state` (`online`/`offline`), `lastSeen` (heartbeat, online window 2 minutes) |
+
+`users/{uid}` is written as a single structured document. Role, `accountStatus` and the verified
+fields are server-owned: security rules let an owner edit their academic/profile fields but never
+grant themselves a role or badge. Owners may only move `verificationStatus` between `unverified`
+and `pending`, and may only set `emailVerified` when Firebase Auth confirms the address.
 
 `FirestoreManager.ensureDemoData()` seeds one event and one group when the collections are empty,
-so every screen can be exercised before an admin/module-2 authoring flow exists.
+so every screen can be exercised before an admin authoring flow exists.
 
-## Suggested Firestore security rules (starting point)
+Required indexes (Firestore prints a create-index link in Logcat when one is missing):
 
+- `verificationRequests`: `uid` ASC + `submittedAt` DESC.
+- `posts`: `college` ASC + `createdAt` DESC (campus feed).
+- Collection group `discussions`: `upvoteCount` DESC (trending) and `titleLower` ASC
+  (discussion search). Enable the collection-group scope for both in the console.
+
+Stories older than 24 hours are hidden immediately (the query only asks for newer documents and
+the client hides anything older) and the author's own expired stories are deleted as they are
+read. For a guaranteed server-side sweep, deploy the optional scheduled function:
+
+```bash
+cd functions && npm install
+firebase deploy --only functions
 ```
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth.uid == userId;
-    }
-    match /events/{eventId} {
-      allow read, create: if request.auth != null;
-      allow update: if request.auth != null;
-      allow delete: if false;
-    }
-    match /groups/{groupId} {
-      allow read, create: if request.auth != null;
-      allow update: if request.auth != null;
-      allow delete: if false;
-    }
-  }
-}
-```
+
+`functions/index.js` deletes every story older than 24 hours hourly, including its views and
+replies.
+
+The same deploy adds the messaging pushes: `notifyNewMessage` reads the conversation's member rows
+before sending, skips muted threads and members with `notifyMessages: false`, and `notifyGroupInvite`
+tells newly added members about the group. Notification toggles are mirrored to the user document
+from Settings so the backend can respect them, and the device also filters locally.
+
+## Security rules
+
+- `firestore.rules` — profile ownership, admin-only verification/suspension, one pending request
+  per write, admin-only review. Membership writes on events/groups require a signed-in user.
+  Social rules: content is attributed to the signed-in user or to nobody (ghost posts), owners
+  edit/delete only their own content (anonymous ownership is proven through the restricted
+  `anonymousAuthors` document), reactions can only touch the counter fields, one like/vote
+  document per user, and `anonymousAuthors` plus `reports` are readable by admins only.
+- `storage.rules` — profile photos readable by signed-in users, writable only by their owner and
+  only for images under 5 MB. Feed images (`post_images/{uid}/…`) and story media
+  (`stories/{uid}/…`) follow the same owner-only write rule with larger size limits.
+  Chat attachments (`chat_attachments/{uid}/{conversationId}/…`) are readable only by members of
+  that conversation — the rule checks the affordance row in Firestore, so a shared URL alone is
+  not enough. Group photos (`group_photos/{uid}/…`) are readable by signed-in users.
+- Messaging rules: every read and write on a thread requires the caller's own
+  `conversations/{id}/members/{uid}` document. That row is what makes membership authoritative:
+  only the account itself (or a group admin) can create it for them, so renaming a `memberIds`
+  array grants nothing. Only admins change membership, names, photos and roles; only the sender
+  may edit a message (and only its `readBy` receipts); a direct message is refused while either
+  participant has blocked the other.
 
 Membership writes are transactional in the client, but a Cloud Function should enforce the same
 rules server-side for trusted operations.
-
-## Images without Cloud Storage
-
-`FirestoreManager.getStorageOrNull()` returns `null` instead of throwing when the project has no
-Storage bucket, and `getStorageReference()` returns `null` in that case — callers must check it.
-Event and group covers are just URLs (`imageUrl` in Firestore) rendered with Glide, so they can
-point at any public host. Uploads from the app need a bucket (Blaze plan) or a third-party image
-host; neither is required for the current module.
 
 ## Structure
 
 ```
 app/src/main/java/com/campussync/app/
 ├── CampusSyncApp.java           Application, notification channels
-├── firebase/                    AuthManager, FirestoreManager, FCM service
-├── model/                       Event, Group, UserProfile
+├── firebase/                    AuthManager, FirestoreManager, UserRepository, SocialRepository,
+│                                StoryRepository, BoardsRepository, FCM service
+├── model/                       Event, Group, UserProfile, VerificationRequest, Post, Comment,
+│                                Story, Board, Discussion, ContentReport
+├── data/                        Colleges (college/department/course reference data)
+├── util/                        ProfileValidator, SessionPrefs, Tags
 └── ui/
-    ├── MainActivity.java        Nav host, bottom bar, auth gate
-    ├── auth/                    AuthFragment + AuthViewModel
+    ├── MainActivity.java        Nav host, bottom bar, auth gate, suspended-account check
+    ├── splash/                  SplashFragment (session router)
+    ├── onboarding/              OnboardingFragment
+    ├── auth/                    AuthFragment, VerifyEmailFragment, AuthViewModel
     ├── home/                    HomeFragment + HomeViewModel
     ├── events/                  list, detail, adapters, ViewModels
     ├── groups/                  list, detail, adapter, ViewModels
-    ├── profile/                 ProfileFragment + ProfileViewModel
-    └── settings/                SettingsFragment
+    ├── profile/                 Profile, EditProfile, UserProfile + ViewModels
+    ├── verification/            VerificationFragment + ViewModel
+    ├── social/                  Feed, CreatePost, Comments, StoryViewer + adapters/ViewModels
+    ├── boards/                  Boards, BoardDetail, DiscussionDetail + adapters/ViewModels
+    ├── messages/                Conversations, Chat, UserPicker, CreateGroup, GroupInfo,
+    │                           BlockedUsers + adapters/ViewModels
+    ├── admin/                   AdminVerificationsFragment, AdminReportsFragment + ViewModels
+    └── settings/                SettingsFragment + SettingsViewModel
 ```
 
 ## Known gaps
 
-- Cloud Functions for trusted backend operations are not part of this module yet.
+- Story expiry relies on the optional scheduled function above; without it, expired stories stay
+  in Firestore but are never shown by the app.
+- Saved posts are stored per user but there is no dedicated bookmarks screen yet.
 - Event/group creation UI is admin-side and belongs to a later module.
-- Profile editing (avatar, display name) is not implemented yet.
+- Presence is heartbeat-based: without the Realtime Database there is no server disconnect hook,
+  so a contact can look online for up to two minutes after they close the app.
+- Typing markers and unread counters are written by clients; security rules validate membership and
+  the shape of those writes, but a custom attacker could still zero another member's counter. The
+  counters are display state only, never an access control decision.

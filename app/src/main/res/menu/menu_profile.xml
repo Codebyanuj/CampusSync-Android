@@ -24,6 +24,12 @@
         app:showAsAction="never" />
 
     <item
+        android:id="@+id/action_admin_reports"
+        android:title="@string/title_admin_reports"
+        android:visible="false"
+        app:showAsAction="never" />
+
+    <item
         android:id="@+id/action_settings"
         android:title="@string/nav_settings"
         app:showAsAction="never" />

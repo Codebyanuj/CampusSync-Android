@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_chat_info"
+        android:title="@string/menu_chat_info"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_mute"
+        android:title="@string/action_mute"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_block"
+        android:title="@string/action_block"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_report_user"
+        android:title="@string/action_report"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_leave_group"
+        android:title="@string/btn_leave_group"
+        android:visible="false"
+        app:showAsAction="never" />
+</menu>

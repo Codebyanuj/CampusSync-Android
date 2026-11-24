@@ -75,7 +75,7 @@ public class AuthFragment extends Fragment {
         }
 
         String lastEmail = SessionPrefs.getLastEmail(requireContext());
-        if (!lastEmail.isEmpty() && binding.etEmail.getText() == null) {
+        if (!lastEmail.isEmpty() && text(binding.etEmail).isEmpty()) {
             binding.etEmail.setText(lastEmail);
         }
 

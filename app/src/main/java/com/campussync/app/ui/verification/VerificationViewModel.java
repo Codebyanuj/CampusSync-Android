@@ -72,7 +72,9 @@ public class VerificationViewModel extends ViewModel {
             message.setValue("Your account is already verified.");
             return;
         }
-        if (current.isVerificationPending() || request.getValue() != null) {
+        VerificationRequest existing = request.getValue();
+        // Only a pending request blocks a new one: a rejected applicant may apply again.
+        if (current.isVerificationPending() || (existing != null && existing.isPending())) {
             message.setValue("You already have a pending request.");
             return;
         }

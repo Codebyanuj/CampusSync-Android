@@ -59,6 +59,24 @@ public class UserProfileFragment extends Fragment {
 
         viewModel.getProfile().observe(getViewLifecycleOwner(), this::bind);
 
+        viewModel.getIsSelf().observe(getViewLifecycleOwner(), isSelf ->
+                binding.btnFollow.setVisibility(Boolean.TRUE.equals(isSelf)
+                        ? View.GONE : View.VISIBLE));
+
+        viewModel.getFollowing().observe(getViewLifecycleOwner(), follow -> {
+            boolean isFollowing = Boolean.TRUE.equals(follow);
+            binding.btnFollow.setText(isFollowing
+                    ? R.string.btn_unfollow : R.string.btn_follow);
+        });
+
+        binding.btnFollow.setOnClickListener(v -> viewModel.toggleFollow(error -> {
+            if (error != null) {
+                com.google.android.material.snackbar.Snackbar.make(
+                        requireView(), R.string.follow_failed,
+                        com.google.android.material.snackbar.Snackbar.LENGTH_SHORT).show();
+            }
+        }));
+
         String uid = getArguments() != null ? getArguments().getString("uid") : null;
         if (uid == null) {
             binding.tvNotFound.setVisibility(View.VISIBLE);

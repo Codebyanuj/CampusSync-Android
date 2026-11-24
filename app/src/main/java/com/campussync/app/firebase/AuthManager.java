@@ -5,7 +5,10 @@ import android.util.Log;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
+import com.google.firebase.auth.AuthCredential;
+import com.google.firebase.auth.EmailAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GetTokenResult;
 import com.google.firebase.auth.UserProfileChangeRequest;
@@ -107,6 +110,12 @@ public class AuthManager {
                     currentUserLive.postValue(user);
                     updateAuthState();
                     registerFcmToken(null);
+                    // Keep the profile's verification flag in sync for accounts verified elsewhere.
+                    if (user != null && user.isEmailVerified()) {
+                        Map<String, Object> fields = new HashMap<>();
+                        fields.put("emailVerified", true);
+                        firestoreManager.updateUserFields(fields, null);
+                    }
                     if (listener != null) listener.onComplete(user, null);
                 });
     }
@@ -214,6 +223,52 @@ public class AuthManager {
     public boolean isEmailVerified() {
         FirebaseUser user = getCurrentUser();
         return user != null && user.isEmailVerified();
+    }
+
+    /**
+     * Changes the password of the signed-in email/password account.
+     *
+     * Firebase requires a recent sign-in for sensitive changes, so the user is re-authenticated
+     * with the current password first; a wrong current password fails there.
+     */
+    public void changePassword(String currentPassword, String newPassword, ActionListener listener) {
+        FirebaseUser user = getCurrentUser();
+        if (user == null || user.getEmail() == null) {
+            if (listener != null) {
+                listener.onComplete(new IllegalStateException("You need to be signed in."));
+            }
+            return;
+        }
+        if (currentPassword == null || currentPassword.isEmpty()) {
+            if (listener != null) {
+                listener.onComplete(new IllegalArgumentException("Enter your current password."));
+            }
+            return;
+        }
+        AuthCredential credential =
+                EmailAuthProvider.getCredential(user.getEmail(), currentPassword);
+        user.reauthenticate(credential).addOnCompleteListener(reAuthTask -> {
+            if (!reAuthTask.isSuccessful()) {
+                Log.w(TAG, "changePassword:reauth:failure", reAuthTask.getException());
+                if (listener != null) {
+                    Exception error = reAuthTask.getException();
+                    if (error instanceof FirebaseAuthInvalidCredentialsException) {
+                        error = new IllegalArgumentException("Your current password is incorrect.");
+                    }
+                    listener.onComplete(error);
+                }
+                return;
+            }
+            user.updatePassword(newPassword).addOnCompleteListener(updateTask -> {
+                if (!updateTask.isSuccessful()) {
+                    Log.w(TAG, "changePassword:update:failure", updateTask.getException());
+                    if (listener != null) listener.onComplete(updateTask.getException());
+                    return;
+                }
+                Log.d(TAG, "changePassword:success");
+                if (listener != null) listener.onComplete(null);
+            });
+        });
     }
 
     public void signOut() {

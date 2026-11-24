@@ -11,11 +11,15 @@ import androidx.core.app.NotificationManagerCompat;
 import com.campussync.app.CampusSyncApp;
 import com.campussync.app.R;
 import com.campussync.app.ui.MainActivity;
+import com.campussync.app.util.NotificationPrefs;
 import com.google.firebase.messaging.FirebaseMessagingService;
 import com.google.firebase.messaging.RemoteMessage;
 
 /**
  * Handles Firebase Cloud Messaging for CampusSync.
+ *
+ * <p>Message and group-invitation pushes respect the local notification preferences, so turning a
+ * category off in Settings silences it on this device even though the backend still sends it.
  */
 public class CampusSyncMessagingService extends FirebaseMessagingService {
 
@@ -37,22 +41,33 @@ public class CampusSyncMessagingService extends FirebaseMessagingService {
         String title = message.getNotification() != null ? message.getNotification().getTitle() : null;
         String body = message.getNotification() != null ? message.getNotification().getBody() : null;
         String channelId = CampusSyncApp.CHANNEL_GENERAL;
+        String category = message.getData() != null ? message.getData().get("category") : null;
 
-        if (message.getData() != null && !message.getData().isEmpty()) {
-            // Trusted data messages from Cloud Functions carry a category.
-            if ("event".equals(message.getData().get("category"))) {
+        if (category != null) {
+            if ("message".equals(category)) {
+                if (!NotificationPrefs.messagesEnabled(this)) return;
+                channelId = CampusSyncApp.CHANNEL_MESSAGES;
+                if (title == null) title = getString(R.string.title_messages);
+            } else if ("groupInvite".equals(category)) {
+                if (!NotificationPrefs.groupsEnabled(this)) return;
+                channelId = CampusSyncApp.CHANNEL_MESSAGES;
+                if (title == null) title = getString(R.string.btn_new_group);
+            } else if ("event".equals(category)) {
                 channelId = CampusSyncApp.CHANNEL_EVENTS;
                 if (title == null) title = getString(R.string.title_events);
-            } else if ("group".equals(message.getData().get("category"))) {
+            } else if ("group".equals(category)) {
                 channelId = CampusSyncApp.CHANNEL_GROUPS;
                 if (title == null) title = getString(R.string.nav_groups);
             }
         }
 
+        if (!NotificationPrefs.pushEnabled(this)) return;
+
         showNotification(title, body, channelId, message.getData());
     }
 
-    private void showNotification(String title, String body, String channelId, java.util.Map<String, String> data) {
+    private void showNotification(String title, String body, String channelId,
+                                  java.util.Map<String, String> data) {
         if (title == null) title = getString(R.string.app_name);
         if (body == null) body = "";
 
@@ -60,6 +75,9 @@ public class CampusSyncMessagingService extends FirebaseMessagingService {
         intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         if (data != null && data.containsKey("screen")) {
             intent.putExtra("screen", data.get("screen"));
+        }
+        if (data != null && data.containsKey("conversationId")) {
+            intent.putExtra("conversationId", data.get("conversationId"));
         }
         PendingIntent pendingIntent = PendingIntent.getActivity(
                 this, 0, intent,
@@ -69,7 +87,9 @@ public class CampusSyncMessagingService extends FirebaseMessagingService {
                 .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(title)
                 .setContentText(body)
-                .setPriority(NotificationCompat.PRIORITY_DEFAULT)
+                .setStyle(new NotificationCompat.BigTextStyle().bigText(body))
+                .setPriority(CampusSyncApp.CHANNEL_MESSAGES.equals(channelId)
+                        ? NotificationCompat.PRIORITY_HIGH : NotificationCompat.PRIORITY_DEFAULT)
                 .setContentIntent(pendingIntent)
                 .setAutoCancel(true);
 

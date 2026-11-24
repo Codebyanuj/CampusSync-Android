@@ -21,7 +21,12 @@ import androidx.navigation.ui.NavigationUI;
 import com.campussync.app.R;
 import com.campussync.app.databinding.ActivityMainBinding;
 import com.campussync.app.firebase.AuthManager;
+import com.campussync.app.firebase.MessagingRepository;
+import com.campussync.app.firebase.UserRepository;
 import com.campussync.app.ui.auth.AuthViewModel;
+import com.google.android.material.badge.BadgeDrawable;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
+import com.google.firebase.firestore.ListenerRegistration;
 
 /**
  * Single-activity host. Owns the NavController, bottom navigation and session routing:
@@ -33,6 +38,9 @@ public class MainActivity extends AppCompatActivity {
     private NavController navController;
     private boolean notificationPermissionRequested;
     private boolean emailVerificationScreenVisible;
+    private boolean accountStatusCheckInFlight;
+    private boolean suspendedDialogShown;
+    private ListenerRegistration unreadRegistration;
 
     private final ActivityResultLauncher<String> notificationPermissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
@@ -56,8 +64,13 @@ public class MainActivity extends AppCompatActivity {
         navController = navHostFragment.getNavController();
         NavigationUI.setupWithNavController(binding.bottomNavigation, navController);
 
-        navController.addOnDestinationChangedListener((controller, destination, arguments) ->
-                updateBottomNavVisibility(destination.getId()));
+        navController.addOnDestinationChangedListener((controller, destination, arguments) -> {
+            updateBottomNavVisibility(destination.getId());
+            if (isMainDestination(destination.getId())) {
+                // Covers both a fresh sign-in and a session restored from a previous launch.
+                enforceAccountStatus();
+            }
+        });
 
         AuthViewModel authViewModel = new ViewModelProvider(this).get(AuthViewModel.class);
         authViewModel.getAuthState().observe(this, state -> {
@@ -82,6 +95,8 @@ public class MainActivity extends AppCompatActivity {
     /** True for destinations that are part of the signed-in tab bar. */
     private boolean isMainDestination(int destinationId) {
         return destinationId == R.id.homeFragment
+                || destinationId == R.id.feedFragment
+                || destinationId == R.id.conversationsFragment
                 || destinationId == R.id.eventsFragment
                 || destinationId == R.id.groupsFragment
                 || destinationId == R.id.profileFragment;
@@ -97,6 +112,18 @@ public class MainActivity extends AppCompatActivity {
                 || destinationId == R.id.userProfileFragment
                 || destinationId == R.id.verificationFragment
                 || destinationId == R.id.adminVerificationsFragment
+                || destinationId == R.id.adminReportsFragment
+                || destinationId == R.id.createPostFragment
+                || destinationId == R.id.commentsFragment
+                || destinationId == R.id.storyViewerFragment
+                || destinationId == R.id.boardsFragment
+                || destinationId == R.id.boardDetailFragment
+                || destinationId == R.id.discussionDetailFragment
+                || destinationId == R.id.chatFragment
+                || destinationId == R.id.userPickerFragment
+                || destinationId == R.id.createGroupFragment
+                || destinationId == R.id.groupInfoFragment
+                || destinationId == R.id.blockedUsersFragment
                 || destinationId == R.id.verifyEmailFragment;
     }
 
@@ -117,6 +144,7 @@ public class MainActivity extends AppCompatActivity {
      * to the main tabs. The splash screen routes itself and is left alone.
      */
     private void onAuthenticated() {
+        startUnreadBadge();
         int current = currentDestinationId();
         if (current == 0 || current == R.id.splashFragment || current == R.id.onboardingFragment) {
             return;
@@ -141,6 +169,7 @@ public class MainActivity extends AppCompatActivity {
 
     /** Signed out: leave any signed-in screen for the auth screen. */
     private void onUnauthenticated() {
+        stopUnreadBadge();
         int current = currentDestinationId();
         if (current == 0) return;
         if (isSignedInDestination(current) || emailVerificationScreenVisible) {
@@ -155,6 +184,38 @@ public class MainActivity extends AppCompatActivity {
                 .setLaunchSingleTop(true)
                 .build();
         navController.navigate(destinationId, null, options);
+    }
+
+    /**
+     * Reads the profile once per main-screen visit and ends the session when the account has been
+     * suspended by an administrator. The client only mirrors the decision; Firestore rules are the
+     * authority for every write.
+     */
+    private void enforceAccountStatus() {
+        if (accountStatusCheckInFlight || suspendedDialogShown) return;
+        final String uid;
+        try {
+            uid = AuthManager.getInstance().getCurrentUserId();
+        } catch (IllegalStateException notConfigured) {
+            return;
+        }
+        if (uid == null) return;
+        accountStatusCheckInFlight = true;
+        UserRepository.getInstance().getProfile(uid, (profile, error) -> {
+            accountStatusCheckInFlight = false;
+            if (error != null || profile == null || !profile.isSuspended()) return;
+            if (isFinishing() || isDestroyed() || suspendedDialogShown) return;
+            suspendedDialogShown = true;
+            new MaterialAlertDialogBuilder(this)
+                    .setTitle(R.string.account_suspended_title)
+                    .setMessage(R.string.account_suspended)
+                    .setCancelable(false)
+                    .setPositiveButton(R.string.btn_sign_out, (dialog, which) -> {
+                        suspendedDialogShown = false;
+                        AuthManager.getInstance().signOut();
+                    })
+                    .show();
+        });
     }
 
     /** Called by the verification gate so signing out returns to the auth screen. */
@@ -189,6 +250,14 @@ public class MainActivity extends AppCompatActivity {
         int current = currentDestinationId();
         if (screen == null || !isSignedInDestination(current)) return;
         if (current == R.id.verifyEmailFragment) return;
+        if ("chat".equals(screen)) {
+            String conversationId = intent.getStringExtra("conversationId");
+            if (conversationId == null) return;
+            Bundle args = new Bundle();
+            args.putString("conversationId", conversationId);
+            navController.navigate(R.id.chatFragment, args);
+            return;
+        }
         int destination = R.id.homeFragment;
         if ("events".equals(screen)) destination = R.id.eventsFragment;
         else if ("groups".equals(screen)) destination = R.id.groupsFragment;
@@ -201,5 +270,48 @@ public class MainActivity extends AppCompatActivity {
         super.onNewIntent(intent);
         setIntent(intent);
         handleNotificationIntent(intent);
+    }
+
+    /**
+     * Keeps the Chats tab badge in sync with the unread counters the messaging module writes on
+     * each conversation document.
+     */
+    private void startUnreadBadge() {
+        if (unreadRegistration != null) return;
+        try {
+            if (!AuthManager.getInstance().isSignedIn()) return;
+        } catch (IllegalStateException notConfigured) {
+            return;
+        }
+        unreadRegistration = MessagingRepository.getInstance()
+                .listenToUnreadTotal(this::updateUnreadBadge);
+    }
+
+    private void stopUnreadBadge() {
+        if (unreadRegistration != null) {
+            unreadRegistration.remove();
+            unreadRegistration = null;
+        }
+        if (binding != null) {
+            binding.bottomNavigation.removeBadge(R.id.conversationsFragment);
+        }
+    }
+
+    private void updateUnreadBadge(long total) {
+        if (binding == null) return;
+        if (total <= 0) {
+            binding.bottomNavigation.removeBadge(R.id.conversationsFragment);
+            return;
+        }
+        BadgeDrawable badge = binding.bottomNavigation
+                .getOrCreateBadge(R.id.conversationsFragment);
+        badge.setVisible(true);
+        badge.setNumber((int) Math.min(total, 99));
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        stopUnreadBadge();
     }
 }

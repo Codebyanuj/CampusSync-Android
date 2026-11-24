@@ -7,6 +7,16 @@
         android:title="@string/nav_home" />
 
     <item
+        android:id="@+id/feedFragment"
+        android:icon="@drawable/ic_social"
+        android:title="@string/nav_social" />
+
+    <item
+        android:id="@+id/conversationsFragment"
+        android:icon="@drawable/ic_chat"
+        android:title="@string/nav_chats" />
+
+    <item
         android:id="@+id/eventsFragment"
         android:icon="@drawable/ic_events"
         android:title="@string/nav_events" />

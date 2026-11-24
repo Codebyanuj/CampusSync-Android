@@ -205,6 +205,8 @@ public class ProfileFragment extends Fragment {
         Menu menu = binding.toolbar.getMenu();
         MenuItem item = menu.findItem(R.id.action_admin_requests);
         if (item != null) item.setVisible(Boolean.TRUE.equals(isAdmin));
+        MenuItem reports = menu.findItem(R.id.action_admin_reports);
+        if (reports != null) reports.setVisible(Boolean.TRUE.equals(isAdmin));
     }
 
     private boolean onMenuItemSelected(MenuItem item) {
@@ -223,6 +225,10 @@ public class ProfileFragment extends Fragment {
         if (item.getItemId() == R.id.action_admin_requests) {
             Navigation.findNavController(requireView())
                     .navigate(R.id.adminVerificationsFragment);
+            return true;
+        }
+        if (item.getItemId() == R.id.action_admin_reports) {
+            Navigation.findNavController(requireView()).navigate(R.id.adminReportsFragment);
             return true;
         }
         if (item.getItemId() == R.id.action_view_public_profile) {

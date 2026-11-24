@@ -1,0 +1,62 @@
+rules_version = '2';
+
+// CampusSync Cloud Storage rules.
+//
+// Deploy with:  firebase deploy --only storage
+//
+// Profile photos live at profile_photos/{uid}/avatar.jpg. Any signed-in user can read them
+// (they are shown on profiles); only the owner can upload or replace their own photo, and only
+// small images are accepted.
+service firebase.storage {
+  match /b/{bucket}/o {
+    match /profile_photos/{uid}/{fileName} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+          && request.auth.uid == uid
+          && request.resource.size < 5 * 1024 * 1024
+          && request.resource.contentType.matches('image/.*');
+    }
+
+    // Feed images: readable by signed-in users, writable only by their owner.
+    match /post_images/{uid}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+          && request.auth.uid == uid
+          && request.resource.size < 10 * 1024 * 1024
+          && request.resource.contentType.matches('image/.*');
+    }
+
+    // Story media: images and short videos owned by their author.
+    match /stories/{uid}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+          && request.auth.uid == uid
+          && request.resource.size < 30 * 1024 * 1024
+          && (request.resource.contentType.matches('image/.*')
+              || request.resource.contentType.matches('video/.*'));
+    }
+
+    // Chat attachments. Reads are limited to members of the conversation they were posted to:
+    // the rule checks the member row in Firestore, so a leaked URL is not enough to download.
+    match /chat_attachments/{uid}/{conversationId}/{allPaths=**} {
+      allow read: if request.auth != null
+          && firestore.exists(/databases/(default)/documents/conversations/$(conversationId)/members/$(request.auth.uid));
+      allow write: if request.auth != null
+          && request.auth.uid == uid
+          && request.resource.size < 25 * 1024 * 1024;
+    }
+
+    // Group photos are shown on group info screens to signed-in users.
+    match /group_photos/{uid}/{allPaths=**} {
+      allow read: if request.auth != null;
+      allow write: if request.auth != null
+          && request.auth.uid == uid
+          && request.resource.size < 5 * 1024 * 1024
+          && request.resource.contentType.matches('image/.*');
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
