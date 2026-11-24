@@ -15,7 +15,7 @@
         app:defaultNavHost="true"
         app:navGraph="@navigation/nav_graph" />
 
-    <com.google.android.material.bottomnavigation.BottomNavigationView
+    <com.campussync.app.ui.CampusBottomNavigationView
         android:id="@+id/bottom_navigation"
         style="@style/Widget.CampusSync.BottomNavigation"
         android:layout_width="match_parent"
