@@ -58,6 +58,34 @@
     </fragment>
 
     <fragment
+        android:id="@+id/createEventFragment"
+        android:name="com.campussync.app.ui.events.CreateEventFragment"
+        android:label="@string/title_host_event"
+        tools:layout="@layout/fragment_create_event" />
+
+    <fragment
+        android:id="@+id/eventParticipantsFragment"
+        android:name="com.campussync.app.ui.events.EventParticipantsFragment"
+        android:label="@string/title_participants"
+        tools:layout="@layout/fragment_event_participants">
+        <argument
+            android:name="eventId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/myEventsFragment"
+        android:name="com.campussync.app.ui.events.MyEventsFragment"
+        android:label="@string/action_my_events"
+        tools:layout="@layout/fragment_my_events" />
+
+    <fragment
+        android:id="@+id/noticesFragment"
+        android:name="com.campussync.app.ui.events.NoticesFragment"
+        android:label="@string/title_notices"
+        tools:layout="@layout/fragment_notices" />
+
+    <fragment
         android:id="@+id/groupsFragment"
         android:name="com.campussync.app.ui.groups.GroupsFragment"
         android:label="@string/nav_groups"

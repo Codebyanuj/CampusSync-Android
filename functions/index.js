@@ -15,13 +15,14 @@
 const { onSchedule } = require("firebase-functions/v2/scheduler");
 const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/firestore");
 const { initializeApp } = require("firebase-admin/app");
-const { getFirestore } = require("firebase-admin/firestore");
+const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { getMessaging } = require("firebase-admin/messaging");
 
 initializeApp();
 
 const STORY_TTL_MS = 24 * 60 * 60 * 1000;
 const MESSAGE_CHANNEL = "campus_sync_messages";
+const EVENT_CHANNEL = "campus_sync_events";
 
 exports.expireStories = onSchedule("every 60 minutes", async () => {
   const db = getFirestore();
@@ -154,3 +155,186 @@ exports.notifyGroupInvite = onDocumentUpdated(
     }
   }
 );
+
+// ---------------------------------------------------------------- events
+
+/** Pushes one payload to every device of a user, honouring their notification preference. */
+async function pushToUser(db, uid, payload, preferenceKey) {
+  if (!uid) return;
+  const user = await db.collection("users").doc(uid).get();
+  if (!user.exists) return;
+  if (preferenceKey && user.get(preferenceKey) === false) return;
+  const tokens = (user.get("fcmTokens") || []).filter(Boolean);
+  if (tokens.length === 0) return;
+  await sendInChunks(tokens, payload);
+}
+
+/** Uids holding a live (not cancelled) registration for the event. */
+async function registeredUids(db, eventId) {
+  const snapshot = await db
+    .collection("events")
+    .doc(eventId)
+    .collection("registrations")
+    .get();
+  return snapshot.docs
+    .filter((document) => document.get("status") !== "cancelled")
+    .map((document) => document.id);
+}
+
+function eventWhen(eventDocument) {
+  const start = eventDocument.get("startDate");
+  if (!start || typeof start.toDate !== "function") return "";
+  return start.toDate().toLocaleString("en-IN", {
+    day: "numeric",
+    month: "short",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
+function eventPayload(eventId, title, body) {
+  return {
+    notification: { title, body },
+    data: { category: "event", screen: "event", eventId },
+    android: {
+      priority: "high",
+      notification: { channelId: EVENT_CHANNEL },
+    },
+  };
+}
+
+/** Registration confirmation for the participant and an organizer notification for the host. */
+exports.notifyEventRegistration = onDocumentCreated(
+  "events/{eventId}/registrations/{uid}",
+  async (event) => {
+    const registration = event.data ? event.data.data() || {} : {};
+    if (registration.status === "cancelled") return;
+    const db = getFirestore();
+    const eventDocument = await db.collection("events").doc(event.params.eventId).get();
+    if (!eventDocument.exists) return;
+
+    const title = eventDocument.get("title") || "Event";
+    const when = eventWhen(eventDocument);
+    const start = eventDocument.get("startDate");
+    const isUpcoming = start && typeof start.toMillis === "function"
+      ? start.toMillis() > Date.now()
+      : false;
+
+    await pushToUser(
+      db,
+      event.params.uid,
+      eventPayload(
+        event.params.eventId,
+        "Registration confirmed",
+        isUpcoming && when ? `${title} · ${when}` : title
+      ),
+      "notifyEvents"
+    );
+
+    const organizerId = eventDocument.get("organizerId");
+    if (organizerId && organizerId !== event.params.uid) {
+      await pushToUser(
+        db,
+        organizerId,
+        eventPayload(
+          event.params.eventId,
+          "New registration",
+          `${registration.name || "A student"} registered for ${title}`
+        ),
+        "notifyEvents"
+      );
+    }
+  }
+);
+
+/** Schedule, venue, title or cancellation changes are pushed to every registrant. */
+exports.notifyEventChanged = onDocumentUpdated(
+  "events/{eventId}",
+  async (event) => {
+    const before = event.data.before.data() || {};
+    const after = event.data.after.data() || {};
+    const changedFields = ["title", "startDate", "endDate", "location", "status"].filter(
+      (field) => String(before[field]) !== String(after[field])
+    );
+    if (changedFields.length === 0) return;
+
+    const db = getFirestore();
+    const cancelled = after.status === "cancelled" && before.status !== "cancelled";
+    const title = after.title || "Event";
+    const uids = await registeredUids(db, event.params.eventId);
+    if (uids.length === 0) return;
+
+    for (const uid of uids) {
+      await pushToUser(
+        db,
+        uid,
+        eventPayload(
+          event.params.eventId,
+          cancelled ? "Event cancelled" : "Event updated",
+          cancelled ? `${title} was cancelled` : `${title} was updated — check the details`
+        ),
+        "notifyEvents"
+      );
+    }
+  }
+);
+
+/** A note posted by the organizer notifies every registrant. */
+exports.notifyEventUpdate = onDocumentCreated(
+  "events/{eventId}/updates/{updateId}",
+  async (event) => {
+    const update = event.data ? event.data.data() || {} : {};
+    const db = getFirestore();
+    const eventDocument = await db.collection("events").doc(event.params.eventId).get();
+    if (!eventDocument.exists) return;
+    const eventTitle = eventDocument.get("title") || "Event";
+    const uids = await registeredUids(db, event.params.eventId);
+
+    for (const uid of uids) {
+      await pushToUser(
+        db,
+        uid,
+        eventPayload(
+          event.params.eventId,
+          `${eventTitle} update`,
+          update.title || update.body || "The organizer posted an update"
+        ),
+        "notifyEvents"
+      );
+    }
+  }
+);
+
+/** Hourly reminder for events starting in the next 24 hours; `reminderSentAt` keeps it once. */
+exports.sendEventReminders = onSchedule("every 60 minutes", async () => {
+  const db = getFirestore();
+  const now = new Date();
+  const soon = new Date(now.getTime() + 24 * 60 * 60 * 1000);
+  const upcoming = await db
+    .collection("events")
+    .where("startDate", ">", now)
+    .where("startDate", "<", soon)
+    .limit(200)
+    .get();
+
+  for (const eventDocument of upcoming.docs) {
+    const data = eventDocument.data() || {};
+    if (data.status === "cancelled") continue;
+    if (data.reminderSentAt) continue;
+
+    const uids = await registeredUids(db, eventDocument.id);
+    for (const uid of uids) {
+      await pushToUser(
+        db,
+        uid,
+        eventPayload(
+          eventDocument.id,
+          "Event reminder",
+          `${data.title || "Your event"} starts ${eventWhen(eventDocument)}`
+        ),
+        "notifyEvents"
+      );
+    }
+    await eventDocument.ref.update({ reminderSentAt: FieldValue.serverTimestamp() });
+  }
+});

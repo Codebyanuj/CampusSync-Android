@@ -126,11 +126,131 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
+    // ---------------------------------------------------------------- events
+
+    function isEventOrganizer(eventId) {
+      return signedIn()
+          && exists(/databases/$(database)/documents/events/$(eventId))
+          && get(/databases/$(database)/documents/events/$(eventId))
+              .data.get('organizerId', '') == request.auth.uid;
+    }
+
+    // Fields an organizer may change after publishing. Counters and ownership are excluded.
+    function organizerEditableEventFields() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+          'title', 'description', 'location', 'category', 'college', 'capacity',
+          'intercollege', 'startDate', 'endDate', 'imageUrl', 'organizerName',
+          'status', 'updatedAt'
+      ])
+          && request.resource.data.get('organizerId', '')
+              == resource.data.get('organizerId', '')
+          && request.resource.data.get('registrationCount', 0)
+              == resource.data.get('registrationCount', 0)
+          && request.resource.data.get('status', 'published') in ['published', 'cancelled'];
+    }
+
+    // Registration and cancellation keep the mirrored counters on the event in sync. A student
+    // may only move them when they are (or were) one of the participants, and never past the
+    // capacity, so the seat limit holds even without the backend function.
+    function eventCounterWrite() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['registrationCount', 'attendeeIds', 'updatedAt'])
+          && request.resource.data.get('registrationCount', 0) >= 0
+          && (request.resource.data.get('capacity', 0) <= 0
+              || request.resource.data.get('registrationCount', 0)
+                  <= request.resource.data.get('capacity', 0))
+          && (request.resource.data.get('attendeeIds', []).hasAny([request.auth.uid])
+              || resource.data.get('attendeeIds', []).hasAny([request.auth.uid]));
+    }
+
+    // The counters on the event must list the registrant once the registration exists.
+    function eventListsRegistrant(eventId) {
+      return getAfter(/databases/$(database)/documents/events/$(eventId))
+          .data.get('attendeeIds', []).hasAny([request.auth.uid]);
+    }
+
+    function eventAcceptsRegistrations(eventId) {
+      return getAfter(/databases/$(database)/documents/events/$(eventId))
+              .data.get('status', 'published') == 'published'
+          && (getAfter(/databases/$(database)/documents/events/$(eventId))
+                  .data.get('capacity', 0) <= 0
+              || getAfter(/databases/$(database)/documents/events/$(eventId))
+                  .data.get('registrationCount', 0)
+                  <= getAfter(/databases/$(database)/documents/events/$(eventId))
+                      .data.get('capacity', 0));
+    }
+
     match /events/{eventId} {
       allow read: if signedIn();
-      allow create: if signedIn();
-      allow update: if signedIn();
+
+      allow create: if signedIn()
+          && request.resource.data.get('organizerId', '') == request.auth.uid
+          && request.resource.data.get('status', 'published') == 'published'
+          && request.resource.data.get('registrationCount', 0) == 0
+          && request.resource.data.get('capacity', 0) >= 0
+          && request.resource.data.get('title', '') is string
+          && request.resource.data.get('title', '').size() > 0
+          && request.resource.data.get('startDate', null) != null;
+
+      allow update: if signedIn()
+          && ((isAdmin() || resource.data.get('organizerId', '') == request.auth.uid)
+                  && organizerEditableEventFields()
+              || eventCounterWrite());
+
       allow delete: if false;
+
+      // One document per participant, keyed by uid: a person cannot register twice.
+      match /registrations/{uid} {
+        allow read: if signedIn()
+            && (isSelf(uid) || isAdmin() || isEventOrganizer(eventId));
+
+        allow create: if isSelf(uid)
+            && request.resource.data.get('status', 'registered') == 'registered'
+            && request.resource.data.get('attended', false) == false
+            && request.resource.data.get('qrToken', '') is string
+            && request.resource.data.get('qrToken', '').size() >= 32
+            && eventAcceptsRegistrations(eventId)
+            && eventListsRegistrant(eventId);
+
+        // Participants manage only their own registration state. Attendance moves once and only
+        // an organizer (or an admin) may set it, which is what blocks duplicate check-ins.
+        allow update: if (isSelf(uid)
+                && request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+                    'status', 'qrToken', 'updatedAt', 'reminderOptIn',
+                    'name', 'email', 'college', 'createdAt'])
+                && request.resource.data.get('attended', false)
+                    == resource.data.get('attended', false)
+                && request.resource.data.get('checkedInAt', null)
+                    == resource.data.get('checkedInAt', null)
+                && (request.resource.data.get('status', 'registered') == 'cancelled'
+                    || eventAcceptsRegistrations(eventId))
+                && (request.resource.data.get('status', 'registered') == 'cancelled'
+                    ? !eventListsRegistrant(eventId) : true))
+            || ((isAdmin() || isEventOrganizer(eventId))
+                && resource.data.get('attended', false) == false
+                && request.resource.data.get('attended', false) == true
+                && request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly(['attended', 'checkedInAt', 'updatedAt']));
+
+        allow delete: if false;
+      }
+
+      // Organizer change notes: readable by everyone, written by the organizer/admin only.
+      match /updates/{updateId} {
+        allow read: if signedIn();
+        allow create: if isAdmin() || isEventOrganizer(eventId)
+            && request.resource.data.get('authorId', '') == request.auth.uid;
+        allow update, delete: if false;
+      }
+    }
+
+    // ---------------------------------------------------------------- college notices
+
+    match /notices/{noticeId} {
+      allow read: if signedIn();
+      allow create: if isAdmin()
+          && request.resource.data.get('authorId', '') == request.auth.uid;
+      allow update, delete: if isAdmin();
     }
 
     match /groups/{groupId} {

@@ -4,166 +4,248 @@ import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-import com.campussync.app.firebase.AuthManager;
-import com.campussync.app.firebase.FirestoreManager;
+import com.campussync.app.firebase.EventRepository;
+import com.campussync.app.firebase.UserRepository;
 import com.campussync.app.model.Event;
+import com.campussync.app.model.EventRegistration;
+import com.campussync.app.model.EventUpdate;
+import com.campussync.app.model.UserProfile;
+import com.campussync.app.util.QrCode;
 import com.google.firebase.firestore.ListenerRegistration;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 /**
- * ViewModel for a single event, including the current user's join state and attendee names.
+ * Detail screen state: the live event document, the signed-in user's registration, organizer
+ * updates, and the write actions (register, cancel, check-in, post update, cancel event).
  */
 public class EventDetailViewModel extends ViewModel {
 
-    private final FirestoreManager firestoreManager = FirestoreManager.getInstance();
+    /** Result of a QR scan, surfaced once to the fragment. */
+    public static final class ScanResult {
+        public final boolean success;
+        public final String message;
+
+        public ScanResult(boolean success, String message) {
+            this.success = success;
+            this.message = message;
+        }
+    }
+
+    private final EventRepository repository = EventRepository.getInstance();
+    private final UserRepository userRepository = UserRepository.getInstance();
+
     private final MutableLiveData<Event> event = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> joined = new MutableLiveData<>(false);
-    private final MutableLiveData<List<String>> attendeeNames = new MutableLiveData<>(new ArrayList<>());
+    private final MutableLiveData<EventRegistration> registration = new MutableLiveData<>();
+    private final MutableLiveData<List<EventUpdate>> updates =
+            new MutableLiveData<>(new ArrayList<>());
     private final MutableLiveData<Boolean> loading = new MutableLiveData<>(true);
+    private final MutableLiveData<Boolean> busy = new MutableLiveData<>(false);
+    private final MutableLiveData<String> message = new MutableLiveData<>();
     private final MutableLiveData<String> error = new MutableLiveData<>();
-    private final MutableLiveData<Boolean> actionInProgress = new MutableLiveData<>(false);
-    private final MutableLiveData<String> actionMessage = new MutableLiveData<>();
+    private final MutableLiveData<ScanResult> scanResult = new MutableLiveData<>();
 
     private String eventId;
-    private ListenerRegistration registration;
+    private UserProfile profile;
+    private ListenerRegistration eventListener;
+    private ListenerRegistration registrationListener;
+    private ListenerRegistration updatesListener;
 
     public LiveData<Event> getEvent() {
         return event;
     }
 
-    public LiveData<Boolean> getJoined() {
-        return joined;
+    public LiveData<EventRegistration> getRegistration() {
+        return registration;
     }
 
-    public LiveData<List<String>> getAttendeeNames() {
-        return attendeeNames;
+    public LiveData<List<EventUpdate>> getUpdates() {
+        return updates;
     }
 
     public LiveData<Boolean> getLoading() {
         return loading;
     }
 
+    public LiveData<Boolean> getBusy() {
+        return busy;
+    }
+
+    public LiveData<String> getMessage() {
+        return message;
+    }
+
     public LiveData<String> getError() {
         return error;
     }
 
-    public LiveData<Boolean> getActionInProgress() {
-        return actionInProgress;
+    public LiveData<ScanResult> getScanResult() {
+        return scanResult;
     }
 
-    public LiveData<String> getActionMessage() {
-        return actionMessage;
+    public String getEventId() {
+        return eventId;
     }
 
-    public void load(String eventId) {
-        if (this.eventId != null && this.eventId.equals(eventId) && registration != null) return;
-        this.eventId = eventId;
-        loading.setValue(true);
-        error.setValue(null);
+    public boolean isOrganizer() {
+        Event current = event.getValue();
+        String uid = EventRepository.currentUidOrNull();
+        return current != null && uid != null && uid.equals(current.getOrganizerId());
+    }
 
-        if (registration != null) {
-            registration.remove();
+    public void load(String id) {
+        if (id == null) {
+            loading.setValue(false);
+            error.setValue("Missing event id");
+            return;
         }
+        if (id.equals(eventId) && eventListener != null) return;
+        eventId = id;
+        loading.setValue(true);
+        detach();
 
-        // Keep the screen live so attendee counts update when other students join.
-        registration = firestoreManager.listenToEvents((events, exception) -> {
+        loadProfile();
+
+        eventListener = repository.listenToEvent(id, (loaded, exception) -> {
+            loading.setValue(false);
             if (exception != null) {
-                loading.setValue(false);
                 error.setValue("Unable to load this event.");
                 return;
             }
-            Event found = null;
-            if (events != null) {
-                for (Event candidate : events) {
-                    if (eventId.equals(candidate.getId())) {
-                        found = candidate;
-                        break;
-                    }
-                }
-            }
-            loading.setValue(false);
-            if (found == null) {
+            if (loaded == null) {
                 error.setValue("This event is no longer available.");
                 return;
             }
-            publish(found);
+            event.setValue(loaded);
+        });
+
+        registrationListener = repository.listenToMyRegistration(id,
+                (registered, exception) -> {
+                    if (exception == null) registration.setValue(registered);
+                });
+
+        updatesListener = repository.listenToUpdates(id, (list, exception) -> {
+            if (exception == null && list != null) updates.setValue(list);
         });
     }
 
-    private void publish(Event found) {
-        event.setValue(found);
-        String uid = AuthManager.getInstance().getCurrentUserId();
-        List<String> ids = found.getAttendeeIds();
-        joined.setValue(uid != null && ids != null && ids.contains(uid));
+    private void loadProfile() {
+        String uid = EventRepository.currentUidOrNull();
+        if (uid == null) return;
+        userRepository.getProfile(uid, new UserRepository.ProfileListener() {
+            @Override
+            public void onProfile(UserProfile loaded, Exception exception) {
+                if (loaded != null) profile = loaded;
+            }
+        });
+    }
 
-        if (ids == null || ids.isEmpty()) {
-            attendeeNames.setValue(new ArrayList<>());
+    public void register() {
+        Event current = event.getValue();
+        if (current == null || Boolean.TRUE.equals(busy.getValue())) return;
+        if (current.isCancelled()) {
+            error.setValue("This event has been cancelled");
             return;
         }
-        firestoreManager.getDisplayNames(ids, new FirestoreManager.DisplayNamesCallback() {
-            @Override
-            public void onSuccess(Map<String, String> namesById) {
-                List<String> names = new ArrayList<>();
-                for (String id : ids) {
-                    String name = namesById.get(id);
-                    names.add(name != null ? name : "Member");
-                }
-                attendeeNames.setValue(names);
-            }
-
-            @Override
-            public void onError(Exception exception) {
-                // Names are decoration; failing to resolve them must not hide the event.
-                List<String> names = new ArrayList<>();
-                for (int i = 0; i < ids.size(); i++) names.add("Member");
-                attendeeNames.setValue(names);
+        busy.setValue(true);
+        repository.register(current, profile, exception -> {
+            busy.setValue(false);
+            if (exception != null) {
+                error.setValue(exception.getMessage() != null
+                        ? exception.getMessage() : "Could not register for this event");
+            } else {
+                message.setValue("You are registered! Your ticket is ready.");
             }
         });
     }
 
-    public void toggleJoin() {
+    public void cancelRegistration() {
         Event current = event.getValue();
-        if (current == null || eventId == null) return;
-        if (Boolean.TRUE.equals(actionInProgress.getValue())) return;
-
-        actionInProgress.setValue(true);
-        boolean isJoined = Boolean.TRUE.equals(joined.getValue());
-        FirestoreManager.getInstance();
-        AuthManager.ActionListener listener = exception -> {
-            actionInProgress.setValue(false);
+        if (current == null || Boolean.TRUE.equals(busy.getValue())) return;
+        busy.setValue(true);
+        repository.cancelRegistration(current, exception -> {
+            busy.setValue(false);
             if (exception != null) {
-                actionMessage.setValue(exception.getMessage() != null
-                        ? exception.getMessage()
-                        : "Could not update your RSVP. Try again.");
+                error.setValue(exception.getMessage() != null
+                        ? exception.getMessage() : "Could not cancel your registration");
             } else {
-                joined.setValue(!isJoined);
-                actionMessage.setValue(!isJoined ? "You joined this event." : "You left this event.");
+                message.setValue("Registration cancelled");
             }
-        };
-        if (isJoined) {
-            firestoreManager.leaveEvent(eventId, listener);
-        } else {
-            firestoreManager.joinEvent(eventId, listener);
+        });
+    }
+
+    /** Validates and redeems a scanned ticket; the repository re-checks the token. */
+    public void checkIn(String rawCode) {
+        QrCode.Ticket ticket = QrCode.parse(rawCode);
+        if (ticket == null) {
+            scanResult.setValue(new ScanResult(false, "That code is not a CampusSync ticket"));
+            return;
         }
+        Event current = event.getValue();
+        if (current == null) return;
+        repository.checkIn(current, ticket, (success, messageOrName) ->
+                scanResult.setValue(new ScanResult(success,
+                        success ? messageOrName + " checked in" : messageOrName)));
+    }
+
+    public void postUpdate(String title, String body) {
+        if (eventId == null) return;
+        busy.setValue(true);
+        String authorName = profile != null ? profile.getDisplayName() : null;
+        repository.addUpdate(eventId, title, body, authorName, exception -> {
+            busy.setValue(false);
+            if (exception != null) {
+                error.setValue("Could not post the update");
+            } else {
+                message.setValue("Update posted");
+            }
+        });
+    }
+
+    public void cancelEvent() {
+        if (eventId == null) return;
+        busy.setValue(true);
+        repository.cancelEvent(eventId, exception -> {
+            busy.setValue(false);
+            if (exception != null) {
+                error.setValue("Could not cancel this event");
+            } else {
+                message.setValue("Event cancelled. Participants will be notified.");
+            }
+        });
     }
 
     public void clearMessage() {
-        actionMessage.setValue(null);
+        message.setValue(null);
     }
 
     public void clearError() {
         error.setValue(null);
     }
 
+    public void clearScanResult() {
+        scanResult.setValue(null);
+    }
+
+    private void detach() {
+        if (eventListener != null) {
+            eventListener.remove();
+            eventListener = null;
+        }
+        if (registrationListener != null) {
+            registrationListener.remove();
+            registrationListener = null;
+        }
+        if (updatesListener != null) {
+            updatesListener.remove();
+            updatesListener = null;
+        }
+    }
+
     @Override
     protected void onCleared() {
         super.onCleared();
-        if (registration != null) {
-            registration.remove();
-            registration = null;
-        }
+        detach();
     }
 }

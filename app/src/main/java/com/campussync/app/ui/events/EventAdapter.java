@@ -5,6 +5,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.DiffUtil;
 import androidx.recyclerview.widget.ListAdapter;
 import androidx.recyclerview.widget.RecyclerView;
@@ -14,10 +15,15 @@ import com.campussync.app.R;
 import com.campussync.app.databinding.ItemEventCardBinding;
 import com.campussync.app.firebase.AuthManager;
 import com.campussync.app.model.Event;
+import com.campussync.app.util.Countdown;
+
+import java.util.Objects;
 
 /**
  * RecyclerView adapter for event cards.
- * Highlights the joined state of the current user without extra queries.
+ *
+ * <p>Shows category, countdown and capacity, and highlights the joined state of the current
+ * user without extra queries (the counters live on the event document).
  */
 public class EventAdapter extends ListAdapter<Event, EventAdapter.EventViewHolder> {
 
@@ -33,10 +39,15 @@ public class EventAdapter extends ListAdapter<Event, EventAdapter.EventViewHolde
 
         @Override
         public boolean areContentsTheSame(@NonNull Event oldItem, @NonNull Event newItem) {
-            return java.util.Objects.equals(oldItem.getTitle(), newItem.getTitle())
-                    && java.util.Objects.equals(oldItem.getLocation(), newItem.getLocation())
-                    && java.util.Objects.equals(oldItem.getStartDate(), newItem.getStartDate())
-                    && java.util.Objects.equals(oldItem.getAttendeeIds(), newItem.getAttendeeIds());
+            return Objects.equals(oldItem.getTitle(), newItem.getTitle())
+                    && Objects.equals(oldItem.getLocation(), newItem.getLocation())
+                    && Objects.equals(oldItem.getStartDate(), newItem.getStartDate())
+                    && Objects.equals(oldItem.getEndDate(), newItem.getEndDate())
+                    && Objects.equals(oldItem.getCategory(), newItem.getCategory())
+                    && Objects.equals(oldItem.getStatus(), newItem.getStatus())
+                    && oldItem.getCapacity() == newItem.getCapacity()
+                    && oldItem.getRegistrationCount() == newItem.getRegistrationCount()
+                    && Objects.equals(oldItem.getAttendeeIds(), newItem.getAttendeeIds());
         }
     };
 
@@ -71,12 +82,39 @@ public class EventAdapter extends ListAdapter<Event, EventAdapter.EventViewHolde
 
         void bind(Event event, OnEventClickListener listener) {
             binding.tvEventTitle.setText(event.getTitle() != null ? event.getTitle() : "");
-            binding.tvEventDate.setText(event.getShortDate() != null ? event.getShortDate() : "Date to be announced");
+            binding.tvEventDate.setText(event.getShortDate() != null
+                    ? event.getShortDate() : "Date to be announced");
             binding.tvEventLocation.setText(event.getLocation() != null ? event.getLocation() : "");
 
+            binding.chipCategory.setText(EventUi.categoryLabel(
+                    binding.getRoot().getContext(), event.getCategoryOrDefault()));
+            binding.chipCategory.setVisibility(View.VISIBLE);
+
+            if (event.isCancelled()) {
+                binding.tvCountdown.setText(R.string.event_cancelled_status);
+                binding.tvCountdown.setTextColor(ContextCompat.getColor(
+                        binding.getRoot().getContext(), R.color.error));
+                binding.chipJoined.setVisibility(View.GONE);
+            } else if (event.hasEnded()) {
+                binding.tvCountdown.setText(R.string.event_ended_status);
+                binding.tvCountdown.setTextColor(ContextCompat.getColor(
+                        binding.getRoot().getContext(), R.color.on_surface_variant));
+            } else {
+                binding.tvCountdown.setText(Countdown.label(event.getStartDate(), event.getEndDate()));
+                binding.tvCountdown.setTextColor(ContextCompat.getColor(
+                        binding.getRoot().getContext(), R.color.secondary));
+            }
+
+            if (event.getCapacity() > 0) {
+                binding.tvSeats.setVisibility(View.VISIBLE);
+                binding.tvSeats.setText(binding.getRoot().getContext().getString(
+                        R.string.seats_left, event.getRegistrationCount(), event.getCapacity()));
+            } else {
+                binding.tvSeats.setVisibility(View.GONE);
+            }
+
             String uid = AuthManager.getInstance().getCurrentUserId();
-            boolean joined = uid != null && event.getAttendeeIds() != null
-                    && event.getAttendeeIds().contains(uid);
+            boolean joined = uid != null && event.isRegistered(uid) && !event.isCancelled();
             binding.chipJoined.setVisibility(joined ? View.VISIBLE : View.GONE);
 
             if (event.getImageUrl() != null && !event.getImageUrl().isEmpty()) {

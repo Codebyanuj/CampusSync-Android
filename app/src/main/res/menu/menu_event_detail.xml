@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_scan_qr"
+        android:icon="@drawable/ic_qr"
+        android:title="@string/action_scan_attendance"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_participants"
+        android:icon="@drawable/ic_groups"
+        android:title="@string/action_participants"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_post_update"
+        android:title="@string/action_post_update"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_cancel_event"
+        android:title="@string/action_cancel_event"
+        app:showAsAction="never" />
+</menu>

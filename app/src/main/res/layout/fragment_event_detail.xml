@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.coordinatorlayout.widget.CoordinatorLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.coordinatorlayout.widget.CoordinatorLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/coordinator"
@@ -18,14 +17,14 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="@android:color/transparent"
+            android:background="?attr/colorSurface"
+            app:menu="@menu/menu_event_detail"
             app:navigationIcon="@drawable/ic_back"
             app:title="@string/event_details"
             app:titleTextColor="?attr/colorOnSurface" />
     </com.google.android.material.appbar.AppBarLayout>
 
     <androidx.core.widget.NestedScrollView
-        android:id="@+id/scrollView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
@@ -35,32 +34,25 @@
             android:layout_height="wrap_content"
             android:orientation="vertical">
 
-            <FrameLayout
+            <ImageView
+                android:id="@+id/ivEventImage"
                 android:layout_width="match_parent"
-                android:layout_height="220dp">
+                android:layout_height="200dp"
+                android:background="@drawable/bg_image_placeholder"
+                android:contentDescription="@null"
+                android:scaleType="centerCrop" />
 
-                <ImageView
-                    android:id="@+id/ivEventImage"
-                    android:layout_width="match_parent"
-                    android:layout_height="match_parent"
-                    android:scaleType="centerCrop"
-                    android:contentDescription="@null"
-                    android:background="@drawable/bg_image_placeholder" />
-
-                <ImageView
-                    android:layout_width="match_parent"
-                    android:layout_height="48dp"
-                    android:src="@drawable/bg_gradient_top"
-                    android:contentDescription="@null" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btnJoin"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_gravity="bottom|end"
-                    android:layout_margin="@dimen/spacing_md"
-                    android:text="@string/btn_join_event" />
-            </FrameLayout>
+            <TextView
+                android:id="@+id/tvStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="?attr/colorErrorContainer"
+                android:padding="@dimen/spacing_sm"
+                android:text="@string/event_cancelled_banner"
+                android:textAppearance="?attr/textAppearanceBodyMedium"
+                android:textColor="?attr/colorOnErrorContainer"
+                android:visibility="gone"
+                tools:visibility="visible" />
 
             <LinearLayout
                 android:layout_width="match_parent"
@@ -69,22 +61,64 @@
                 android:padding="@dimen/spacing_md">
 
                 <TextView
-                    android:id="@+id/tvEventTitle"
+                    android:id="@+id/tvTitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:textAppearance="?attr/textAppearanceHeadlineSmall"
-                    tools:text="Campus Sync Launch Meetup" />                    <LinearLayout
-                        android:layout_width="match_parent"
+                    tools:text="Campus Sync Launch Meetup" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipCategory"
+                        style="@style/Widget.Material3.Chip.Assist"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_marginTop="@dimen/spacing_md"
-                        android:gravity="center_vertical"
-                        android:orientation="horizontal">
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:textAppearance="?attr/textAppearanceLabelSmall"
+                        app:chipMinHeight="24dp"
+                        tools:text="Workshop" />
+
+                    <com.google.android.material.chip.Chip
+                        android:id="@+id/chipCollege"
+                        style="@style/Widget.Material3.Chip.Assist"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_xs"
+                        android:clickable="false"
+                        android:focusable="false"
+                        android:textAppearance="?attr/textAppearanceLabelSmall"
+                        app:chipMinHeight="24dp"
+                        tools:text="DTU" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvCountdown"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:textAppearance="?attr/textAppearanceTitleMedium"
+                    android:textColor="?attr/colorPrimary"
+                    tools:text="Starts in 2d 4h" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
 
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_calendar"
-                        android:contentDescription="@null" />
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_calendar" />
 
                     <TextView
                         android:id="@+id/tvEventDate"
@@ -99,13 +133,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_sm"
+                    android:gravity="center_vertical"
                     android:orientation="horizontal">
 
                     <ImageView
                         android:layout_width="20dp"
                         android:layout_height="20dp"
-                        android:src="@drawable/ic_location"
-                        android:contentDescription="@null" />
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_location" />
 
                     <TextView
                         android:id="@+id/tvEventLocation"
@@ -116,11 +151,50 @@
                         tools:text="Main Campus Hall" />
                 </LinearLayout>
 
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal">
+
+                    <ImageView
+                        android:layout_width="20dp"
+                        android:layout_height="20dp"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_person" />
+
+                    <TextView
+                        android:id="@+id/tvOrganizer"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="@dimen/spacing_sm"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        tools:text="Hosted by Aarav Sharma" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvCapacity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="12 / 50 registered · 38 seats left" />
+
+                <com.google.android.material.progressindicator.LinearProgressIndicator
+                    android:id="@+id/progressCapacity"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_xs"
+                    android:max="100"
+                    app:trackCornerRadius="4dp"
+                    app:trackThickness="6dp" />
+
                 <View
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
-                    android:layout_marginTop="@dimen/spacing_md"
-                    android:layout_marginBottom="@dimen/spacing_md"
+                    android:layout_marginVertical="@dimen/spacing_md"
                     android:background="?attr/colorOutlineVariant" />
 
                 <TextView
@@ -130,7 +204,7 @@
                     android:textAppearance="?attr/textAppearanceTitleMedium" />
 
                 <TextView
-                    android:id="@+id/tvEventDescription"
+                    android:id="@+id/tvDescription"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_sm"
@@ -138,17 +212,52 @@
                     android:textColor="?attr/colorOnSurfaceVariant"
                     tools:text="Join us for the official launch of CampusSync." />
 
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnRegister"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_md"
+                    android:text="@string/btn_register_event" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnViewTicket"
+                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:text="@string/btn_view_ticket"
+                    android:visibility="gone" />
+
+                <com.google.android.material.button.MaterialButton
+                    android:id="@+id/btnCancelRegistration"
+                    style="@style/Widget.Material3.Button.TextButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="@string/btn_cancel_registration"
+                    android:visibility="gone" />
+
                 <TextView
-                    android:id="@+id/tvAttendeesTitle"
+                    android:id="@+id/tvRegistrationStatus"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
+                    android:textColor="@color/success"
+                    android:visibility="gone"
+                    tools:text="You are registered. Show your ticket at the entrance."
+                    tools:visibility="visible" />
+
+                <TextView
+                    android:id="@+id/tvUpdatesTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_lg"
-                    android:text="Attendees"
+                    android:text="@string/event_updates"
                     android:textAppearance="?attr/textAppearanceTitleMedium"
-                    tools:text="Attendees (12)" />
+                    android:visibility="gone" />
 
                 <androidx.recyclerview.widget.RecyclerView
-                    android:id="@+id/rvAttendees"
+                    android:id="@+id/rvUpdates"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_sm"
@@ -158,10 +267,9 @@
     </androidx.core.widget.NestedScrollView>
 
     <ProgressBar
-        android:id="@+id/progressBar"
+        android:id="@+id/progressLoading"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="center"
         android:visibility="gone" />
-
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

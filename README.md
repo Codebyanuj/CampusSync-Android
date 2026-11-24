@@ -60,6 +60,38 @@ Following a classmate from their public profile feeds the *Following* tab.
 - **Notifications**: direct and group messages, and group invitations, arrive over FCM. The phone
   also honours the in-app switches in Settings for push, message and group-invite categories.
 
+## Event radar and campus activities
+
+- **Event radar** (Events tab): college notices entry point, upcoming events ordered by start date,
+  live countdowns, category chips (academic, cultural, sports, workshop, tech, social, other),
+  free-text search over title / description / venue / host, and date filters (today, this week,
+  this month). Cancelled events and events that ended before today drop out of the feed.
+- **Intercollege discovery**: every event carries a college and an `intercollege` flag. The
+  "My college" chip narrows the radar to the student's own college, the college is shown on each
+  detail page, and events flagged intercollege accept registrations from any college.
+- **Hosting**: publish an event with title, description, venue, category, college, capacity
+  (0 = unlimited), the intercollege flag and a start/end chosen with the Material date and time
+  pickers. Hosts can post updates and cancel their event from the detail page.
+- **Registration**: one transaction creates `events/{id}/registrations/{uid}` and moves the
+  mirrored `registrationCount` / `attendeeIds` on the event. The registration document id is the
+  uid, so a student can never register twice; the rules reject a counter move past `capacity` and
+  refuse registrations for cancelled events.
+- **Tickets and attendance**: each registration carries a random `qrToken`, rendered as a QR code
+  (`campussync://event/{eventId}/registration/{uid}?token=…`) generated with ZXing. Only the
+  organizer sees **Scan ticket**; the scan re-reads the registration inside a transaction and
+  writes `attended` / `checkedInAt` only when the scanned token equals the stored one. Rules allow
+  that write only from `attended == false` to `true`, by the organizer or an administrator, so
+  duplicate check-ins and forged codes are rejected.
+- **Participant lists**: the organizer (and administrators) can open the participant list with
+  registration and attendance state; everyone else sees counts only, because the registrations
+  subcollection is readable by its owner, the organizer and administrators only.
+- **Notifications**: registration confirmation, organizer "new registration", event updates,
+  schedule/venue changes, cancellation and an hourly reminder for events starting within 24 hours
+  are sent by the functions in `functions/index.js` on the event notification channel.
+
+Radar filtering happens on the client over a start-date-ordered window, so these screens need no
+composite indexes; only `notices` and event `updates` are ordered server-side (`createdAt`).
+
 ## Setup
 
 1. Create a Firebase project and add an Android app with package `com.campussync.app`.
@@ -93,7 +125,10 @@ Following a classmate from their public profile feeds the *Following* tab.
 | `users/{uid}` | `email`, `displayName`, `photoUrl`, `role` (`student`/`faculty`), `college`, `department`, `course`, `semester`, `academicYear`, `designation`, `bio`, `skills[]`, `interests[]`, `accountStatus`, `verificationStatus`, `verifiedRole`, `emailVerified`, `fcmTokens[]`, `createdAt`, `updatedAt` |
 | `verificationRequests/{id}` | `uid`, `name`, `email`, `role`, `college`, `department`, `course`, `semester`, `academicYear`, `designation`, `idNumber`, `note`, `status` (`pending`/`approved`/`rejected`), `submittedAt`, `reviewedAt`, `reviewedBy`, `reviewNote` |
 | `admins/{uid}` | Marker document; presence grants administrator access |
-| `events/{eventId}` | `title`, `description`, `location`, `startDate`, `endDate`, `imageUrl`, `organizerId`, `attendeeIds[]` |
+| `events/{eventId}` | `title`, `description`, `location`, `startDate`, `endDate`, `imageUrl`, `category`, `college`, `intercollege`, `status` (`published`/`cancelled`), `capacity` (0 = unlimited), `registrationCount`, `attendeeIds[]`, `organizerId`, `organizerName`, `createdAt`, `updatedAt` |
+| `events/{eventId}/registrations/{uid}` | `uid` (document id), `name`, `email`, `college`, `status` (`registered`/`cancelled`), `qrToken`, `attended`, `checkedInAt`, `reminderOptIn`, `createdAt`, `updatedAt` |
+| `events/{eventId}/updates/{updateId}` | `title`, `body`, `authorId`, `authorName`, `createdAt` |
+| `notices/{noticeId}` | `title`, `body`, `college`, `authorId`, `authorName`, `pinned`, `createdAt` |
 | `groups/{groupId}` | `name`, `description`, `imageUrl`, `memberIds[]`, `createdAt` |
 | `posts/{postId}` | `authorId` (absent for ghost posts), `authorName`, `authorPhotoUrl`, `authorRole`, `college`, `anonymous`, `content`, `imageUrls[]`, `likeCount`, `commentCount`, `shareCount`, `edited`, `createdAt`, `updatedAt` |
 | `posts/{postId}/likes/{uid}` | `createdAt` — one document per liker, id is the user id |
@@ -189,7 +224,8 @@ app/src/main/java/com/campussync/app/
     ├── onboarding/              OnboardingFragment
     ├── auth/                    AuthFragment, VerifyEmailFragment, AuthViewModel
     ├── home/                    HomeFragment + HomeViewModel
-    ├── events/                  list, detail, adapters, ViewModels
+    ├── events/                  Radar, detail, host event, participants, my events, notices
+    │                           + adapters/ViewModels
     ├── groups/                  list, detail, adapter, ViewModels
     ├── profile/                 Profile, EditProfile, UserProfile + ViewModels
     ├── verification/            VerificationFragment + ViewModel
@@ -206,7 +242,9 @@ app/src/main/java/com/campussync/app/
 - Story expiry relies on the optional scheduled function above; without it, expired stories stay
   in Firestore but are never shown by the app.
 - Saved posts are stored per user but there is no dedicated bookmarks screen yet.
-- Event/group creation UI is admin-side and belongs to a later module.
+- Event creation, registration, QR scanning and attendance compile against the rules above but
+  were not exercised at runtime in this workspace (no Firebase project / `app/google-services.json`
+  and an unstable emulator). They need a manual pass on a device with a configured project.
 - Presence is heartbeat-based: without the Realtime Database there is no server disconnect hook,
   so a contact can look online for up to two minutes after they close the app.
 - Typing markers and unread counters are written by clients; security rules validate membership and

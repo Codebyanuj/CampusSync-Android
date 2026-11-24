@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/cardEvent"
@@ -20,15 +19,15 @@
             android:id="@+id/ivEventImage"
             android:layout_width="80dp"
             android:layout_height="80dp"
-            android:scaleType="centerCrop"
             android:contentDescription="@null"
+            android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.CampusSync.Corner.Medium" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
             android:layout_marginStart="@dimen/spacing_sm"
+            android:layout_weight="1"
             android:orientation="vertical">
 
             <TextView
@@ -58,15 +57,58 @@
                 android:textColor="?attr/colorOnSurfaceVariant"
                 tools:text="Main Campus Hall" />
 
-            <com.google.android.material.chip.Chip
-                android:id="@+id/chipJoined"
+            <TextView
+                android:id="@+id/tvCountdown"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_xs"
+                android:textAppearance="?attr/textAppearanceLabelMedium"
+                android:textColor="?attr/colorSecondary"
+                tools:text="Starts in 2d 4h" />
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <com.google.android.material.chip.Chip
+                    android:id="@+id/chipCategory"
+                    style="@style/Widget.Material3.Chip.Assist"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:clickable="false"
+                    android:focusable="false"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    app:chipMinHeight="24dp"
+                    tools:text="Workshop" />
+
+                <TextView
+                    android:id="@+id/tvSeats"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="@dimen/spacing_sm"
+                    android:layout_weight="1"
+                    android:ellipsize="end"
+                    android:maxLines="1"
+                    android:textAppearance="?attr/textAppearanceLabelSmall"
+                    android:textColor="?attr/colorOnSurfaceVariant"
+                    tools:text="12 / 50 seats" />
+            </LinearLayout>
+
+            <com.google.android.material.chip.Chip
+                android:id="@+id/chipJoined"
+                style="@style/Widget.Material3.Chip.Assist"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="@dimen/spacing_xs"
+                android:clickable="false"
+                android:focusable="false"
                 android:text="@string/joined"
                 android:visibility="gone"
-                app:chipMinHeight="24dp"
                 app:chipBackgroundColor="?attr/colorPrimaryContainer"
+                app:chipMinHeight="24dp"
                 tools:visibility="visible" />
         </LinearLayout>
     </LinearLayout>

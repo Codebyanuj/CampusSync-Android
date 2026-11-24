@@ -106,6 +106,10 @@ public class MainActivity extends AppCompatActivity {
     private boolean isSignedInDestination(int destinationId) {
         return isMainDestination(destinationId)
                 || destinationId == R.id.eventDetailFragment
+                || destinationId == R.id.createEventFragment
+                || destinationId == R.id.eventParticipantsFragment
+                || destinationId == R.id.myEventsFragment
+                || destinationId == R.id.noticesFragment
                 || destinationId == R.id.groupDetailFragment
                 || destinationId == R.id.settingsFragment
                 || destinationId == R.id.editProfileFragment

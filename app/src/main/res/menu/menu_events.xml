@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_notices"
+        android:icon="@drawable/ic_notification"
+        android:title="@string/action_notices"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_my_events"
+        android:icon="@drawable/ic_events"
+        android:title="@string/action_my_events"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_host_event"
+        android:icon="@drawable/ic_add"
+        android:title="@string/action_host_event"
+        app:showAsAction="ifRoom" />
+</menu>

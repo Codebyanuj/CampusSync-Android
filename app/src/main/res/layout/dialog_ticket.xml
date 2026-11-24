@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:paddingHorizontal="@dimen/spacing_lg"
+    android:paddingTop="@dimen/spacing_sm">
+
+    <TextView
+        android:id="@+id/tvTicketEvent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        tools:text="Campus Sync Launch Meetup" />
+
+    <ImageView
+        android:id="@+id/ivQr"
+        android:layout_width="240dp"
+        android:layout_height="240dp"
+        android:layout_marginTop="@dimen/spacing_md"
+        android:background="@android:color/white"
+        android:contentDescription="@string/ticket_qr_description"
+        android:padding="@dimen/spacing_sm" />
+
+    <TextView
+        android:id="@+id/tvTicketCode"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:letterSpacing="0.2"
+        android:textAppearance="?attr/textAppearanceTitleMedium"
+        tools:text="A1B2-C3D4" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="@dimen/spacing_sm"
+        android:gravity="center"
+        android:text="@string/ticket_hint"
+        android:textAppearance="?attr/textAppearanceBodySmall"
+        android:textColor="?attr/colorOnSurfaceVariant" />
+</LinearLayout>
