@@ -159,8 +159,28 @@ service cloud.firestore {
           && (request.resource.data.get('capacity', 0) <= 0
               || request.resource.data.get('registrationCount', 0)
                   <= request.resource.data.get('capacity', 0))
-          && (request.resource.data.get('attendeeIds', []).hasAny([request.auth.uid])
-              || resource.data.get('attendeeIds', []).hasAny([request.auth.uid]));
+          // One seat moves per write: joining needs the caller to be newly listed, leaving needs
+          // them to be removed. Without this, attendeeIds could be inflated in a single write and
+          // hold every seat of an event without a single registration document behind it.
+          && (request.resource.data.get('registrationCount', 0)
+                  == resource.data.get('registrationCount', 0)
+              || (request.resource.data.get('registrationCount', 0)
+                      == resource.data.get('registrationCount', 0) + 1
+                  && !resource.data.get('attendeeIds', []).hasAny([request.auth.uid])
+                  && request.resource.data.get('attendeeIds', []).hasAny([request.auth.uid]))
+              || (request.resource.data.get('registrationCount', 0)
+                      == resource.data.get('registrationCount', 0) - 1
+                  && !request.resource.data.get('attendeeIds', []).hasAny([request.auth.uid])));
+    }
+
+    // Registering (or re-activating a cancelled registration) must add exactly one seat, so the
+    // mirrored counter can never drift upwards without a registration document behind it.
+    function eventSeatTaken(eventId) {
+      return eventListsRegistrant(eventId)
+          && getAfter(/databases/$(database)/documents/events/$(eventId))
+                  .data.get('registrationCount', 0)
+              == get(/databases/$(database)/documents/events/$(eventId))
+                  .data.get('registrationCount', 0) + 1;
     }
 
     // The counters on the event must list the registrant once the registration exists.
@@ -210,7 +230,7 @@ service cloud.firestore {
             && request.resource.data.get('qrToken', '') is string
             && request.resource.data.get('qrToken', '').size() >= 32
             && eventAcceptsRegistrations(eventId)
-            && eventListsRegistrant(eventId);
+            && eventSeatTaken(eventId);
 
         // Participants manage only their own registration state. Attendance moves once and only
         // an organizer (or an admin) may set it, which is what blocks duplicate check-ins.
@@ -222,10 +242,13 @@ service cloud.firestore {
                     == resource.data.get('attended', false)
                 && request.resource.data.get('checkedInAt', null)
                     == resource.data.get('checkedInAt', null)
+                // Withdrawing is always allowed for the owner; the seat is released by the
+                // counter rule above, which requires them to leave attendeeIds in the same write.
                 && (request.resource.data.get('status', 'registered') == 'cancelled'
-                    || eventAcceptsRegistrations(eventId))
-                && (request.resource.data.get('status', 'registered') == 'cancelled'
-                    ? !eventListsRegistrant(eventId) : true))
+                    || (eventAcceptsRegistrations(eventId)
+                        && (resource.data.get('status', '') == 'cancelled'
+                            ? eventSeatTaken(eventId)
+                            : eventListsRegistrant(eventId)))))
             || ((isAdmin() || isEventOrganizer(eventId))
                 && resource.data.get('attended', false) == false
                 && request.resource.data.get('attended', false) == true

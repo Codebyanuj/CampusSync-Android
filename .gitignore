@@ -17,3 +17,7 @@ app/google-services.json
 # Environment/secret files
 .env
 .env.*
+
+# Firebase emulator output
+firestore-debug.log
+firebase-debug.log
