@@ -50,6 +50,8 @@ public class HomeFragment extends Fragment {
         binding.swipeRefresh.setColorSchemeResources(R.color.primary);
 
         binding.swipeRefresh.setOnRefreshListener(viewModel::retry);
+        binding.btnOpenAcademicHub.setOnClickListener(v ->
+                Navigation.findNavController(view).navigate(R.id.academicHubFragment));
 
         if (getArguments() != null && "events".equals(getArguments().getString("screen"))) {
             Navigation.findNavController(view).navigate(R.id.eventsFragment);

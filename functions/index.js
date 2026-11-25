@@ -17,10 +17,43 @@ const { onDocumentCreated, onDocumentUpdated } = require("firebase-functions/v2/
 const { initializeApp } = require("firebase-admin/app");
 const { getFirestore, FieldValue } = require("firebase-admin/firestore");
 const { getMessaging } = require("firebase-admin/messaging");
+const {
+  answerAcceptedAward,
+  resourceHelpfulAward,
+  tutorReviewAward,
+} = require("./karma");
 
 initializeApp();
 
 const STORY_TTL_MS = 24 * 60 * 60 * 1000;
+
+/**
+ * Writes one award to the read-only karma ledger. The document id is derived from the
+ * contribution, so a rerun (or a duplicated trigger) finds the document already there and does
+ * nothing: one contribution can only ever be rewarded once.
+ */
+async function writeKarma(db, award) {
+  if (!award) return false;
+  const reference = db.collection("karmaAwards").doc(award.awardId);
+  try {
+    return await db.runTransaction(async (transaction) => {
+      const snapshot = await transaction.get(reference);
+      if (snapshot.exists) return false;
+      transaction.set(reference, {
+        recipientId: award.recipientId,
+        sourceType: award.sourceType,
+        sourceId: award.sourceId,
+        amount: award.amount,
+        note: award.note,
+        createdAt: FieldValue.serverTimestamp(),
+      });
+      return true;
+    });
+  } catch (error) {
+    console.error("Karma award failed", award.awardId, error);
+    return false;
+  }
+}
 const MESSAGE_CHANNEL = "campus_sync_messages";
 const EVENT_CHANNEL = "campus_sync_events";
 
@@ -68,6 +101,68 @@ function messageBody(message) {
   if (message.type === "document") return `📎 ${message.attachmentName || "Document"}`;
   return message.text || "New message";
 }
+
+/**
+ * Karma for an accepted answer. The answer is read from Firestore rather than trusted from the
+ * doubt document, and the asker's own answer is never rewarded.
+ */
+exports.awardAnswerKarma = onDocumentUpdated("doubts/{doubtId}", async (event) => {
+  const after = event.data.after.data() || {};
+  const before = event.data.before.data() || {};
+  if (!after.solved || !after.acceptedAnswerId) return;
+  if (before.acceptedAnswerId === after.acceptedAnswerId) return;
+
+  const db = getFirestore();
+  const answer = await event.data.after.ref
+    .collection("answers")
+    .doc(after.acceptedAnswerId)
+    .get();
+  if (!answer.exists) return;
+
+  const award = answerAcceptedAward({
+    doubtId: event.params.doubtId,
+    answerId: after.acceptedAnswerId,
+    answerAuthorId: answer.get("authorId"),
+    doubtAuthorId: after.authorId,
+    doubtTitle: after.title,
+  });
+  if (await writeKarma(db, award)) {
+    console.log(`Karma awarded for accepted answer ${after.acceptedAnswerId}.`);
+  }
+});
+
+/** Karma for a resource that reached the helpfulness threshold. */
+exports.awardResourceKarma = onDocumentUpdated("resources/{resourceId}", async (event) => {
+  const after = event.data.after.data() || {};
+  const award = resourceHelpfulAward({
+    resourceId: event.params.resourceId,
+    uploaderId: after.uploaderId,
+    ratingSum: after.ratingSum,
+    ratingCount: after.ratingCount,
+    title: after.title,
+  });
+  if (await writeKarma(getFirestore(), award)) {
+    console.log(`Karma awarded for resource ${event.params.resourceId}.`);
+  }
+});
+
+/** Karma for a completed tutoring session that was reviewed well. */
+exports.awardTutorReviewKarma = onDocumentUpdated(
+  "tutoringRequests/{requestId}",
+  async (event) => {
+    const after = event.data.after.data() || {};
+    const award = tutorReviewAward({
+      requestId: event.params.requestId,
+      tutorId: after.tutorId,
+      studentId: after.studentId,
+      status: after.status,
+      reviewRating: after.reviewRating,
+    });
+    if (await writeKarma(getFirestore(), award)) {
+      console.log(`Karma awarded for tutoring request ${event.params.requestId}.`);
+    }
+  }
+);
 
 exports.notifyNewMessage = onDocumentCreated(
   "conversations/{conversationId}/messages/{messageId}",

@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_upload_resource"
+        android:icon="@drawable/ic_upload"
+        android:title="@string/action_upload_resource"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_ask_doubt"
+        android:icon="@drawable/ic_add"
+        android:title="@string/action_ask_doubt"
+        app:showAsAction="ifRoom" />
+
+    <item
+        android:id="@+id/action_karma"
+        android:title="@string/action_karma"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_tutoring_requests"
+        android:title="@string/action_tutoring_requests"
+        app:showAsAction="never" />
+
+    <item
+        android:id="@+id/action_offer_tutoring"
+        android:title="@string/action_offer_tutoring"
+        app:showAsAction="never" />
+</menu>

@@ -92,6 +92,69 @@ Following a classmate from their public profile feeds the *Following* tab.
 Radar filtering happens on the client over a start-date-ordered window, so these screens need no
 composite indexes; only `notices` and event `updates` are ordered server-side (`createdAt`).
 
+## Academic hub and peer learning
+
+Opened from the Home card or Profile → *Academic hub*; one screen with three tabs.
+
+### Knowledge sharing
+
+- **Library** (Resources tab): notes, PDFs, slide decks and previous-year question papers,
+  organised by subject, department and semester. Filter chips for the resource type, *My
+  department*, *My semester* and *Saved*, plus free-text search over title, subject, department,
+  uploader and tags. The Firestore query only orders by `createdAt` and every filter runs on the
+  client, so the library needs no composite index.
+- **Uploads**: pick a file with the system picker; the app validates name, size and content type
+  (`UploadValidator`, unit tested), uploads to `academic_resources/{uid}/…` and only then writes
+  the library record. Storage rules repeat the 20 MB and document-type limits, and refuse writes
+  outside the uploader's own folder. If the record cannot be written the uploaded object is
+  deleted again, so there is no orphaned public file.
+- **View and download**: the file is handed to the device's viewer through an `ACTION_VIEW`
+  intent and the mirrored `downloadCount` moves by one (rules allow at most a single step).
+- **Bookmarks**: a private `users/{uid}/resourceBookmarks/{resourceId}` document plus a mirrored
+  `bookmarkCount`; the *Saved* chip filters the library by them.
+- **Ratings and feedback**: one rating document per student (`resources/{id}/ratings/{uid}`) with
+  1–5 stars and optional written feedback. The resource's `ratingSum`/`ratingCount` move in the
+  same transaction, and rules keep the sum inside `0…5 × count`.
+- **Reporting**: the existing moderation queue. A resource report is a normal `reports` document
+  with `targetType: "resource"`, so administrators review it where they already review posts.
+
+### Peer tutoring
+
+- **Doubts** (Doubts tab): ask a question with subject, department and semester; peers answer in
+  the thread. The asker accepts an answer (which marks the doubt solved) or closes it without an
+  accepted answer. Only the asker may solve, and only the answer's author may edit the answer
+  text; one answer moves `answerCount` by exactly one.
+- **Tutor directory** (Tutors tab): search by subject, name or department. Any student can publish
+  a listing (up to five subjects, a short bio) from **Offer tutoring**; the listing reuses the
+  profile's name, photo, department and semester.
+- **Tutor profile**: rating average, completed sessions, bio and the reviews left by students, plus
+  **Request session** and **Message** — the message button reuses the existing direct-chat module
+  (`MessagingRepository.getOrCreateDirectConversation`).
+- **Requests** (*Tutoring requests* in the hub menu): the requests you sent and received. The tutor
+  accepts or declines a pending request; the student cancels an open one or completes it with the
+  single review the request can hold. Only the two participants can read a request.
+
+### Karma
+
+- Karma is a **read-only ledger** (`karmaAwards/{awardId}`), not a mutable balance. The award id is
+  the contribution (`answer_accepted_{answerId}`, `resource_helpful_{resourceId}`,
+  `tutor_review_{requestId}`), the amount is fixed in `functions/karma.js`, and only the Cloud
+  Functions write it. A repeat therefore finds the same document and is ignored, and a client can
+  neither award itself nor edit an award.
+- Awards: an accepted answer **+15**, a tutoring session reviewed 4★ or better **+10**, a resource
+  with at least three ratings averaging 4★ or better **+10**. Accepting your own answer earns
+  nothing.
+- **Balance and history** (hub → *Karma*): the balance is the sum of the account's ledger rows
+  (newest 200), so it can never drift from the history. The rules only deliver the caller's own
+  awards; an administrator can read all of them.
+
+Deploy the award triggers together with the other functions:
+
+```bash
+cd functions && npm install
+firebase deploy --only functions
+```
+
 ## Setup
 
 1. Create a Firebase project and add an Android app with package `com.campussync.app`.
@@ -150,6 +213,14 @@ composite indexes; only `notices` and event `updates` are ordered server-side (`
 | `conversations/{id}/typing/{uid}` | `name`, `typingAt` (stale after 6 seconds) |
 | `users/{uid}/blocked/{targetUid}` | `name`, `blockedAt` — private to the blocker |
 | `presence/{uid}` | `state` (`online`/`offline`), `lastSeen` (heartbeat, online window 2 minutes) |
+| `resources/{resourceId}` | `title`, `description`, `type` (`notes`/`pdf`/`slides`/`questionPaper`), `subject`, `subjectLower`, `department`, `semester`, `college`, `tags[]`, `fileName`, `fileUrl`, `filePath`, `fileSize`, `mimeType`, `uploaderId`, `uploaderName`, `uploaderPhotoUrl`, `downloadCount`, `bookmarkCount`, `ratingSum`, `ratingCount`, `status`, `createdAt`, `updatedAt` |
+| `resources/{id}/ratings/{uid}` | `stars` (1–5), `feedback`, `raterName`, `createdAt`, `updatedAt` |
+| `users/{uid}/resourceBookmarks/{resourceId}` | `resourceId`, `title`, `subject`, `fileUrl`, `savedAt` |
+| `doubts/{doubtId}` | `title`, `body`, `subject`, `department`, `semester`, `college`, `authorId`, `authorName`, `authorPhotoUrl`, `answerCount`, `solved`, `acceptedAnswerId`, `createdAt`, `lastActivityAt` |
+| `doubts/{id}/answers/{answerId}` | `body`, `authorId`, `authorName`, `authorPhotoUrl`, `accepted`, `createdAt` |
+| `tutors/{uid}` | `displayName`, `photoUrl`, `college`, `department`, `semester`, `subjects[]`, `bio`, `ratingSum`, `ratingCount`, `completedSessions`, `createdAt`, `updatedAt` |
+| `tutoringRequests/{requestId}` | `studentId`, `studentName`, `studentPhotoUrl`, `tutorId`, `tutorName`, `subject`, `message`, `preferredTime`, `status` (`pending`/`accepted`/`declined`/`completed`/`cancelled`), `reviewRating`, `reviewComment`, `createdAt`, `updatedAt`, `reviewedAt`, `completedAt` |
+| `karmaAwards/{awardId}` | `recipientId`, `sourceType`, `sourceId`, `amount`, `note`, `createdAt` — written only by the Cloud Functions |
 
 `users/{uid}` is written as a single structured document. Role, `accountStatus` and the verified
 fields are server-owned: security rules let an owner edit their academic/profile fields but never
@@ -187,12 +258,20 @@ from Settings so the backend can respect them, and the device also filters local
 
 - `firestore.rules` — profile ownership, admin-only verification/suspension, one pending request
   per write, admin-only review. Membership writes on events/groups require a signed-in user.
+  Academic hub rules: uploads are attributed to the uploader with a real file and bounded
+  metadata (20 MB, allowed types), the file fields are immutable, and counters move by one step
+  with the rating sum kept inside 0…5 × count. Ratings, bookmarks and doubts are per-user
+  documents (id = uid) so nothing can be double-voted. A tutoring request is readable by its two
+  participants only, the tutor may only accept/decline, and the student's single review is stored
+  on the request. `karmaAwards` is read-only for every client, including administrators.
   Social rules: content is attributed to the signed-in user or to nobody (ghost posts), owners
   edit/delete only their own content (anonymous ownership is proven through the restricted
   `anonymousAuthors` document), reactions can only touch the counter fields, one like/vote
   document per user, and `anonymousAuthors` plus `reports` are readable by admins only.
 - `storage.rules` — profile photos readable by signed-in users, writable only by their owner and
-  only for images under 5 MB. Feed images (`post_images/{uid}/…`) and story media
+  only for images under 5 MB. Academic resources (`academic_resources/{uid}/…`) are readable by
+  signed-in students and writable only by the uploader, inside their own folder, for PDF, Office,
+  text and image types under 20 MB. Feed images (`post_images/{uid}/…`) and story media
   (`stories/{uid}/…`) follow the same owner-only write rule with larger size limits.
   Chat attachments (`chat_attachments/{uid}/{conversationId}/…`) are readable only by members of
   that conversation — the rule checks the affordance row in Firestore, so a shared URL alone is
@@ -233,11 +312,23 @@ app/src/main/java/com/campussync/app/
     ├── boards/                  Boards, BoardDetail, DiscussionDetail + adapters/ViewModels
     ├── messages/                Conversations, Chat, UserPicker, CreateGroup, GroupInfo,
     │                           BlockedUsers + adapters/ViewModels
+    ├── academics/               AcademicHub, UploadResource, ResourceDetail, CreateDoubt,
+    │                           DoubtDetail, TutorProfile, TutoringRequests, Karma
+    │                           + adapters/ViewModels
     ├── admin/                   AdminVerificationsFragment, AdminReportsFragment + ViewModels
     └── settings/                SettingsFragment + SettingsViewModel
 ```
 
 ## Known gaps
+
+- Karma only moves once the Cloud Functions in `functions/index.js` are deployed; until then the
+  ledger stays empty and the Karma screen shows zero. The award decisions themselves are covered
+  by `node tools/karma-test.js` and the ledger's rules by the emulator suite.
+- The balance is the sum of the newest 200 awards; the screen says so when the page is full.
+- `storage.rules` could not be exercised locally: the Storage emulator reports a null
+  `request.resource.contentType` for media uploads, which denies even the pre-existing
+  profile-photo rule. The Firestore metadata rules, the upload validator (JVM unit test) and the
+  emulator suite are green, but the Storage limits still need a pass on a deployed project.
 
 - Story expiry relies on the optional scheduled function above; without it, expired stories stay
   in Firestore but are never shown by the app.

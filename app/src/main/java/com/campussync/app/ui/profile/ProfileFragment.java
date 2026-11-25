@@ -222,6 +222,10 @@ public class ProfileFragment extends Fragment {
             Navigation.findNavController(requireView()).navigate(R.id.verificationFragment);
             return true;
         }
+        if (item.getItemId() == R.id.action_academic_hub) {
+            Navigation.findNavController(requireView()).navigate(R.id.academicHubFragment);
+            return true;
+        }
         if (item.getItemId() == R.id.action_admin_requests) {
             Navigation.findNavController(requireView())
                     .navigate(R.id.adminVerificationsFragment);

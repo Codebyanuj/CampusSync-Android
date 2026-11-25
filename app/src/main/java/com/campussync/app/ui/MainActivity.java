@@ -128,6 +128,14 @@ public class MainActivity extends AppCompatActivity {
                 || destinationId == R.id.createGroupFragment
                 || destinationId == R.id.groupInfoFragment
                 || destinationId == R.id.blockedUsersFragment
+                || destinationId == R.id.academicHubFragment
+                || destinationId == R.id.uploadResourceFragment
+                || destinationId == R.id.resourceDetailFragment
+                || destinationId == R.id.createDoubtFragment
+                || destinationId == R.id.doubtDetailFragment
+                || destinationId == R.id.tutorProfileFragment
+                || destinationId == R.id.tutoringRequestsFragment
+                || destinationId == R.id.karmaFragment
                 || destinationId == R.id.verifyEmailFragment;
     }
 

@@ -285,4 +285,64 @@
         android:label="@string/title_blocked_users"
         tools:layout="@layout/fragment_blocked_users" />
 
+    <fragment
+        android:id="@+id/academicHubFragment"
+        android:name="com.campussync.app.ui.academics.AcademicHubFragment"
+        android:label="@string/title_academic_hub"
+        tools:layout="@layout/fragment_academic_hub" />
+
+    <fragment
+        android:id="@+id/uploadResourceFragment"
+        android:name="com.campussync.app.ui.academics.UploadResourceFragment"
+        android:label="@string/title_upload_resource"
+        tools:layout="@layout/fragment_upload_resource" />
+
+    <fragment
+        android:id="@+id/resourceDetailFragment"
+        android:name="com.campussync.app.ui.academics.ResourceDetailFragment"
+        android:label="@string/title_resource"
+        tools:layout="@layout/fragment_resource_detail">
+        <argument
+            android:name="resourceId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/createDoubtFragment"
+        android:name="com.campussync.app.ui.academics.CreateDoubtFragment"
+        android:label="@string/title_ask_doubt"
+        tools:layout="@layout/fragment_create_doubt" />
+
+    <fragment
+        android:id="@+id/doubtDetailFragment"
+        android:name="com.campussync.app.ui.academics.DoubtDetailFragment"
+        android:label="@string/title_doubt"
+        tools:layout="@layout/fragment_doubt_detail">
+        <argument
+            android:name="doubtId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tutorProfileFragment"
+        android:name="com.campussync.app.ui.academics.TutorProfileFragment"
+        android:label="@string/title_tutor"
+        tools:layout="@layout/fragment_tutor_profile">
+        <argument
+            android:name="tutorId"
+            app:argType="string" />
+    </fragment>
+
+    <fragment
+        android:id="@+id/tutoringRequestsFragment"
+        android:name="com.campussync.app.ui.academics.TutoringRequestsFragment"
+        android:label="@string/title_tutoring_requests"
+        tools:layout="@layout/fragment_tutoring_requests" />
+
+    <fragment
+        android:id="@+id/karmaFragment"
+        android:name="com.campussync.app.ui.academics.KarmaFragment"
+        android:label="@string/title_karma"
+        tools:layout="@layout/fragment_karma" />
+
 </navigation>

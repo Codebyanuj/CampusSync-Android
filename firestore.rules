@@ -106,6 +106,11 @@ service cloud.firestore {
       match /blocked/{targetId} {
         allow read, write: if isSelf(userId) && userId != targetId;
       }
+
+      // Saved academic resources, private to their owner.
+      match /resourceBookmarks/{resourceId} {
+        allow read, write: if isSelf(userId);
+      }
     }
 
     // Only the owner may check whether they are an admin; entries are never written by clients.
@@ -531,6 +536,259 @@ service cloud.firestore {
         allow read: if isMember();
         allow write: if isSelf(userId) && isMember();
       }
+    }
+
+    // ---------------------------------------------------------------- academic hub
+
+    // A resource's aggregate counters may move by at most one step per write and the summed
+    // rating can never claim an average outside 1..5. The ratings themselves are per-user
+    // documents, so a client cannot rate twice or invent extra votes.
+    function resourceCounterWrite() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'downloadCount', 'bookmarkCount', 'ratingSum', 'ratingCount', 'updatedAt'])
+          && request.resource.data.get('downloadCount', 0) >= 0
+          && request.resource.data.get('downloadCount', 0)
+              <= resource.data.get('downloadCount', 0) + 1
+          && request.resource.data.get('bookmarkCount', 0) >= 0
+          && request.resource.data.get('bookmarkCount', 0)
+              <= resource.data.get('bookmarkCount', 0) + 1
+          && request.resource.data.get('bookmarkCount', 0)
+              >= resource.data.get('bookmarkCount', 0) - 1
+          && request.resource.data.get('ratingCount', 0) >= 0
+          && request.resource.data.get('ratingCount', 0)
+              <= resource.data.get('ratingCount', 0) + 1
+          && request.resource.data.get('ratingCount', 0)
+              >= resource.data.get('ratingCount', 0) - 1
+          && request.resource.data.get('ratingSum', 0) >= 0
+          && request.resource.data.get('ratingSum', 0)
+              <= request.resource.data.get('ratingCount', 0) * 5;
+    }
+
+    // The uploader may correct the description and organisation, never the file or the counters.
+    function resourceOwnerEdit() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'title', 'description', 'type', 'subject', 'subjectLower', 'department',
+              'semester', 'college', 'tags', 'status', 'updatedAt'])
+          && request.resource.data.get('uploaderId', '')
+              == resource.data.get('uploaderId', '')
+          && request.resource.data.get('fileUrl', '') == resource.data.get('fileUrl', '')
+          && request.resource.data.get('filePath', '') == resource.data.get('filePath', '')
+          && request.resource.data.get('fileName', '') == resource.data.get('fileName', '')
+          && request.resource.data.get('fileSize', 0) == resource.data.get('fileSize', 0)
+          && request.resource.data.get('mimeType', '') == resource.data.get('mimeType', '')
+          && request.resource.data.get('ratingSum', 0) == resource.data.get('ratingSum', 0)
+          && request.resource.data.get('ratingCount', 0) == resource.data.get('ratingCount', 0)
+          && request.resource.data.get('downloadCount', 0)
+              == resource.data.get('downloadCount', 0)
+          && request.resource.data.get('bookmarkCount', 0)
+              == resource.data.get('bookmarkCount', 0)
+          && request.resource.data.get('status', 'published') == 'published';
+    }
+
+    match /resources/{resourceId} {
+      allow read: if signedIn();
+
+      allow create: if signedIn()
+          && request.resource.data.get('uploaderId', '') == request.auth.uid
+          && request.resource.data.get('status', 'published') == 'published'
+          && request.resource.data.get('title', '') is string
+          && request.resource.data.get('title', '').size() > 0
+          && request.resource.data.get('subject', '') is string
+          && request.resource.data.get('subject', '').size() > 0
+          && request.resource.data.get('type', 'notes')
+              in ['notes', 'pdf', 'slides', 'questionPaper']
+          && request.resource.data.get('fileUrl', '') is string
+          && request.resource.data.get('fileUrl', '').size() > 0
+          && request.resource.data.get('fileName', '') is string
+          && request.resource.data.get('fileName', '').size() > 0
+          && request.resource.data.get('fileSize', 0) is int
+          && request.resource.data.get('fileSize', 0) > 0
+          && request.resource.data.get('fileSize', 0) <= 20 * 1024 * 1024
+          && request.resource.data.get('semester', 0) is int
+          && request.resource.data.get('semester', 0) >= 0
+          && request.resource.data.get('semester', 0) <= 12
+          && request.resource.data.get('downloadCount', 0) == 0
+          && request.resource.data.get('bookmarkCount', 0) == 0
+          && request.resource.data.get('ratingSum', 0) == 0
+          && request.resource.data.get('ratingCount', 0) == 0;
+
+      allow update: if signedIn()
+          && ((resource.data.get('uploaderId', '') == request.auth.uid
+                  && resourceOwnerEdit())
+              || isAdmin()
+              || resourceCounterWrite());
+
+      allow delete: if isAdmin()
+          || (signedIn() && resource.data.get('uploaderId', '') == request.auth.uid);
+
+      // One rating document per student: the id is the uid, so a second rating is an edit.
+      match /ratings/{uid} {
+        allow read: if signedIn();
+
+        allow create, update: if isSelf(uid)
+            && request.resource.data.get('stars', 0) is int
+            && request.resource.data.get('stars', 0) >= 1
+            && request.resource.data.get('stars', 0) <= 5
+            && request.resource.data.get('feedback', '') is string
+            && request.resource.data.get('feedback', '').size() <= 2000;
+
+        allow delete: if isSelf(uid) || isAdmin();
+      }
+    }
+
+    // The asker may edit the question and close it; every answer moves answerCount by one.
+    function doubtAuthorEdit() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'title', 'body', 'subject', 'department', 'semester', 'college', 'solved',
+              'acceptedAnswerId', 'lastActivityAt'])
+          && request.resource.data.get('authorId', '') == resource.data.get('authorId', '')
+          && request.resource.data.get('answerCount', 0)
+              == resource.data.get('answerCount', 0)
+          && request.resource.data.get('solved', false) is bool;
+    }
+
+    function doubtAnswerCounterWrite() {
+      return request.resource.data.diff(resource.data).affectedKeys()
+              .hasOnly(['answerCount', 'lastActivityAt'])
+          && request.resource.data.get('answerCount', 0)
+              == resource.data.get('answerCount', 0) + 1;
+    }
+
+    match /doubts/{doubtId} {
+      allow read: if signedIn();
+
+      allow create: if signedIn()
+          && request.resource.data.get('authorId', '') == request.auth.uid
+          && request.resource.data.get('title', '') is string
+          && request.resource.data.get('title', '').size() > 0
+          && request.resource.data.get('body', '') is string
+          && request.resource.data.get('body', '').size() > 0
+          && request.resource.data.get('answerCount', 0) == 0
+          && request.resource.data.get('solved', false) == false;
+
+      allow update: if signedIn()
+          && ((resource.data.get('authorId', '') == request.auth.uid && doubtAuthorEdit())
+              || doubtAnswerCounterWrite());
+
+      allow delete: if isAdmin()
+          || (signedIn() && resource.data.get('authorId', '') == request.auth.uid);
+
+      match /answers/{answerId} {
+        allow read: if signedIn();
+
+        allow create: if signedIn()
+            && request.resource.data.get('authorId', '') == request.auth.uid
+            && request.resource.data.get('body', '') is string
+            && request.resource.data.get('body', '').size() > 0
+            && request.resource.data.get('accepted', false) == false;
+
+        // The answer's author may edit the text; the asker may only tick `accepted` on it.
+        allow update: if (signedIn()
+                && resource.data.get('authorId', '') == request.auth.uid
+                && request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly(['body'])
+                && request.resource.data.get('body', '') is string
+                && request.resource.data.get('body', '').size() > 0)
+            || (signedIn()
+                && get(/databases/$(database)/documents/doubts/$(doubtId))
+                    .data.get('authorId', '') == request.auth.uid
+                && request.resource.data.diff(resource.data).affectedKeys()
+                    .hasOnly(['accepted'])
+                && request.resource.data.get('accepted', false) == true);
+
+        allow delete: if isAdmin();
+      }
+    }
+
+    // A tutor listing belongs to its owner, except for the rating aggregate, which the reviewing
+    // student moves by exactly one review (1..5 stars).
+    function tutorListingWrite() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'displayName', 'photoUrl', 'college', 'department', 'semester', 'subjects', 'bio',
+              'updatedAt'])
+          && request.resource.data.get('subjects', []) is list
+          && request.resource.data.get('subjects', []).size() > 0
+          && request.resource.data.get('subjects', []).size() <= 5
+          && request.resource.data.get('ratingCount', 0)
+              == resource.data.get('ratingCount', 0)
+          && request.resource.data.get('ratingSum', 0)
+              == resource.data.get('ratingSum', 0);
+    }
+
+    function tutorRatingWrite() {
+      return request.resource.data.diff(resource.data).affectedKeys().hasOnly([
+              'ratingSum', 'ratingCount', 'completedSessions', 'updatedAt'])
+          && request.resource.data.get('ratingCount', 0)
+              == resource.data.get('ratingCount', 0) + 1
+          && request.resource.data.get('completedSessions', 0)
+              == resource.data.get('completedSessions', 0) + 1
+          && request.resource.data.get('ratingSum', 0)
+              >= resource.data.get('ratingSum', 0) + 1
+          && request.resource.data.get('ratingSum', 0)
+              <= resource.data.get('ratingSum', 0) + 5;
+    }
+
+    match /tutors/{uid} {
+      allow read: if signedIn();
+
+      allow create: if isSelf(uid)
+          && request.resource.data.get('subjects', []) is list
+          && request.resource.data.get('subjects', []).size() > 0
+          && request.resource.data.get('subjects', []).size() <= 5
+          && request.resource.data.get('ratingCount', 0) == 0
+          && request.resource.data.get('ratingSum', 0) == 0;
+
+      allow update: if (isSelf(uid) && tutorListingWrite())
+          || (signedIn() && tutorRatingWrite());
+
+      allow delete: if isSelf(uid) || isAdmin();
+    }
+
+    // A tutoring request is private to its two participants. The tutor may accept or decline;
+    // the student may cancel or complete with the single review the request can hold.
+    match /tutoringRequests/{requestId} {
+      allow read: if signedIn()
+          && (resource.data.get('studentId', '') == request.auth.uid
+              || resource.data.get('tutorId', '') == request.auth.uid
+              || isAdmin());
+
+      allow create: if signedIn()
+          && request.resource.data.get('studentId', '') == request.auth.uid
+          && request.resource.data.get('tutorId', '') is string
+          && request.resource.data.get('tutorId', '').size() > 0
+          && request.resource.data.get('tutorId', '') != request.auth.uid
+          && request.resource.data.get('subject', '') is string
+          && request.resource.data.get('subject', '').size() > 0
+          && request.resource.data.get('status', 'pending') == 'pending'
+          && request.resource.data.get('reviewRating', 0) == 0;
+
+      allow update: if signedIn()
+          && ((resource.data.get('tutorId', '') == request.auth.uid
+                  && request.resource.data.diff(resource.data).affectedKeys()
+                      .hasOnly(['status', 'updatedAt', 'reviewedAt'])
+                  && request.resource.data.get('status', '') in ['accepted', 'declined'])
+              || (resource.data.get('studentId', '') == request.auth.uid
+                  && request.resource.data.diff(resource.data).affectedKeys()
+                      .hasOnly(['status', 'updatedAt', 'reviewRating', 'reviewComment',
+                          'completedAt'])
+                  && ((request.resource.data.get('status', '') == 'cancelled'
+                          && request.resource.data.get('reviewRating', 0)
+                              == resource.data.get('reviewRating', 0))
+                      || (request.resource.data.get('status', '') == 'completed'
+                          && resource.data.get('reviewRating', 0) == 0
+                          && request.resource.data.get('reviewRating', 0) is int
+                          && request.resource.data.get('reviewRating', 0) >= 1
+                          && request.resource.data.get('reviewRating', 0) <= 5))));
+
+      allow delete: if isAdmin();
+    }
+
+    // Karma is a read-only ledger for clients: an award id is derived from the contribution and
+    // only the trusted backend writes it, so rewards are neither duplicated nor self-granted.
+    match /karmaAwards/{awardId} {
+      allow read: if signedIn()
+          && (resource.data.get('recipientId', '') == request.auth.uid || isAdmin());
+      allow write: if false;
     }
 
     // ---------------------------------------------------------------- moderation
