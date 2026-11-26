@@ -5,7 +5,7 @@
     android:id="@+id/root"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface"
+    android:background="?android:attr/colorBackground"
     android:fillViewport="true"
     tools:context="com.campussync.app.ui.auth.AuthFragment">
 
@@ -13,44 +13,45 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="@dimen/spacing_md">
+        android:paddingStart="26dp"
+        android:paddingTop="@dimen/spacing_xl"
+        android:paddingEnd="26dp"
+        android:paddingBottom="@dimen/spacing_xl">
 
         <ImageView
             android:id="@+id/ivLogo"
-            android:layout_width="88dp"
-            android:layout_height="88dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/spacing_md"
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:layout_marginTop="@dimen/spacing_xl"
             android:background="@drawable/bg_circle_primary"
             android:contentDescription="@string/app_name"
-            android:padding="22dp"
-            android:src="@drawable/ic_launcher_foreground" />
+            android:padding="16dp"
+            android:src="@drawable/ic_academic"
+            app:tint="?attr/colorPrimary" />
 
         <TextView
             android:id="@+id/tvTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:gravity="center"
+            android:layout_marginTop="@dimen/spacing_lg"
             android:text="@string/title_login"
-            android:textAppearance="?attr/textAppearanceHeadlineMedium" />
+            android:textAppearance="?attr/textAppearanceHeadlineLarge" />
 
         <TextView
             android:id="@+id/tvSubtitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xs"
-            android:gravity="center"
+            android:layout_marginTop="6dp"
             android:text="@string/subtitle_login"
-            android:textAppearance="?attr/textAppearanceBodyMedium"
+            android:textAppearance="?attr/textAppearanceBodyLarge"
             android:textColor="?attr/colorOnSurfaceVariant" />
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilEmail"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.CampusSync.TextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_lg"
+            android:layout_marginTop="@dimen/spacing_xl"
             android:hint="@string/hint_email">
 
             <com.google.android.material.textfield.TextInputEditText
@@ -63,10 +64,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilPassword"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.CampusSync.TextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
             android:hint="@string/hint_password"
             app:endIconMode="password_toggle">
 
@@ -83,17 +84,18 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="end"
+            android:layout_marginTop="@dimen/spacing_xs"
             android:padding="@dimen/spacing_sm"
             android:text="@string/forgot_password_link"
             android:textAppearance="?attr/textAppearanceLabelLarge"
-            android:textColor="?attr/colorPrimary" />
+            android:textColor="?attr/colorSecondary" />
 
         <!-- Registration only -->
         <com.google.android.material.button.MaterialButtonToggleGroup
             android:id="@+id/roleGroup"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
             android:visibility="gone"
             app:checkedButton="@id/btnRoleStudent"
             app:selectionRequired="true"
@@ -102,7 +104,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRoleStudent"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.CampusSync.Button.Outlined"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -110,7 +112,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnRoleFaculty"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.CampusSync.Button.Outlined"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -119,10 +121,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilDisplayName"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.CampusSync.TextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
             android:hint="@string/hint_display_name"
             android:visibility="gone"
             tools:visibility="visible">
@@ -137,10 +139,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilCollege"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/Widget.CampusSync.TextInput.Dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
             android:hint="@string/hint_college"
             android:visibility="gone"
             tools:visibility="visible">
@@ -155,10 +157,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilDepartment"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/Widget.CampusSync.TextInput.Dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
             android:hint="@string/hint_department"
             android:visibility="gone"
             tools:visibility="visible">
@@ -173,10 +175,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilCourse"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/Widget.CampusSync.TextInput.Dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
             android:hint="@string/hint_course"
             android:visibility="gone"
             tools:visibility="visible">
@@ -191,10 +193,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilSemester"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/Widget.CampusSync.TextInput.Dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
             android:hint="@string/hint_semester"
             android:visibility="gone"
             tools:visibility="visible">
@@ -209,10 +211,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilDesignation"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/Widget.CampusSync.TextInput.Dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
             android:hint="@string/hint_designation"
             android:visibility="gone"
             tools:visibility="gone">
@@ -227,10 +229,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilAcademicYear"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+            style="@style/Widget.CampusSync.TextInput.Dropdown"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
             android:hint="@string/hint_academic_year"
             android:visibility="gone"
             tools:visibility="visible">
@@ -245,10 +247,10 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilConfirmPassword"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+            style="@style/Widget.CampusSync.TextInput"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
             android:hint="@string/hint_confirm_password"
             android:visibility="gone"
             app:endIconMode="password_toggle"
@@ -265,7 +267,7 @@
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnSubmit"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="54dp"
             android:layout_marginTop="@dimen/spacing_lg"
             android:text="@string/btn_sign_in" />
 
@@ -281,7 +283,7 @@
             android:id="@+id/tvError"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
             android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="?attr/colorError"
             android:visibility="gone"
@@ -293,10 +295,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
-            android:layout_marginTop="@dimen/spacing_md"
+            android:layout_marginTop="@dimen/spacing_lg"
             android:padding="@dimen/spacing_sm"
             android:text="@string/link_register"
             android:textAppearance="?attr/textAppearanceLabelLarge"
-            android:textColor="?attr/colorPrimary" />
+            android:textColor="?attr/colorSecondary" />
     </LinearLayout>
 </androidx.core.widget.NestedScrollView>

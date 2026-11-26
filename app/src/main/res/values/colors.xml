@@ -1,48 +1,58 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Primary -->
-    <color name="primary">#6750A4</color>
-    <color name="on_primary">#FFFFFF</color>
-    <color name="primary_container">#EADDFF</color>
-    <color name="on_primary_container">#21005D</color>
+    <!--
+      Campus Paper palette. Ink navy for structure, brass for emphasis, warm off-white paper
+      for the canvas. Deliberately not a stock Material seed colour.
+    -->
+    <color name="primary">#16324C</color>
+    <color name="on_primary">#FBF8F2</color>
+    <color name="primary_container">#DCE6F2</color>
+    <color name="on_primary_container">#0B1F31</color>
 
-    <!-- Secondary -->
-    <color name="secondary">#625B71</color>
+    <color name="secondary">#9A5B16</color>
     <color name="on_secondary">#FFFFFF</color>
-    <color name="secondary_container">#E8DEF8</color>
-    <color name="on_secondary_container">#1D192B</color>
+    <color name="secondary_container">#F7E5C9</color>
+    <color name="on_secondary_container">#3A2405</color>
 
-    <!-- Tertiary -->
-    <color name="tertiary">#7D5260</color>
+    <color name="tertiary">#2C6357</color>
     <color name="on_tertiary">#FFFFFF</color>
-    <color name="tertiary_container">#FFD8E4</color>
-    <color name="on_tertiary_container">#31111D</color>
+    <color name="tertiary_container">#D6E9E2</color>
+    <color name="on_tertiary_container">#0C2A23</color>
 
-    <!-- Background / Surface -->
-    <color name="background">#FFFBFE</color>
-    <color name="on_background">#1C1B1F</color>
-    <color name="surface">#FFFBFE</color>
-    <color name="on_surface">#1C1B1F</color>
-    <color name="surface_variant">#E7E0EC</color>
-    <color name="on_surface_variant">#49454F</color>
-    <color name="surface_tint">#6750A4</color>
+    <color name="background">#F7F4ED</color>
+    <color name="on_background">#1A1916</color>
+    <color name="surface">#FFFDF9</color>
+    <color name="on_surface">#1A1916</color>
+    <color name="surface_variant">#EFEADF</color>
+    <color name="on_surface_variant">#57524A</color>
+    <color name="surface_tint">#16324C</color>
 
-    <!-- Error -->
+    <color name="surface_container_lowest">#FFFFFF</color>
+    <color name="surface_container_low">#FCFAF4</color>
+    <color name="surface_container">#F2EEE5</color>
+    <color name="surface_container_high">#EBE6DA</color>
+    <color name="surface_container_highest">#E4DED1</color>
+
     <color name="error">#B3261E</color>
     <color name="on_error">#FFFFFF</color>
     <color name="error_container">#F9DEDC</color>
     <color name="on_error_container">#410E0B</color>
 
-    <!-- Outline -->
-    <color name="outline">#79747E</color>
-    <color name="outline_variant">#CAC4D0</color>
+    <color name="outline">#857F73</color>
+    <color name="outline_variant">#DFD9CC</color>
 
-    <!-- Inverse -->
-    <color name="inverse_surface">#313033</color>
-    <color name="inverse_on_surface">#F4EFF4</color>
-    <color name="inverse_primary">#D0BCFF</color>
+    <color name="inverse_surface">#2F2C27</color>
+    <color name="inverse_on_surface">#F6F1E7</color>
+    <color name="inverse_primary">#A9C7E6</color>
 
-    <!-- Status colors -->
+    <!-- Accents -->
     <color name="success">#2E7D32</color>
-    <color name="warning">#F9A825</color>
+    <color name="warning">#B26A00</color>
+    <color name="star">#B4761E</color>
+
+    <color name="hero_start">#16324C</color>
+    <color name="hero_end">#24506F</color>
+    <color name="hero_kicker">#A9C7E6</color>
+    <color name="hero_body">#D7E3EE</color>
+    <color name="hero_rule">#B4761E</color>
 </resources>

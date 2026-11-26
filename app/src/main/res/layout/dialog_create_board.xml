@@ -8,7 +8,7 @@
     android:paddingEnd="@dimen/spacing_lg">
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.CampusSync.TextInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:hint="@string/hint_board_name">
@@ -22,7 +22,7 @@
     </com.google.android.material.textfield.TextInputLayout>
 
     <com.google.android.material.textfield.TextInputLayout
-        style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+        style="@style/Widget.CampusSync.TextInput"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/spacing_sm"

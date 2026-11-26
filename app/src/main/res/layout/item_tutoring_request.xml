@@ -32,7 +32,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipRequestStatus"
-                style="@style/Widget.Material3.Chip.Assist"
+                style="@style/Widget.CampusSync.Chip.Assist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="false"
@@ -76,7 +76,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReview"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.CampusSync.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tutoring_review"
@@ -85,7 +85,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnCancel"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.CampusSync.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tutoring_cancel"
@@ -94,7 +94,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDecline"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.CampusSync.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/tutoring_decline"

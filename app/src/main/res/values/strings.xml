@@ -525,6 +525,8 @@
     <string name="empty_resources">No resources here yet. Upload the first one.</string>
     <string name="empty_doubts">No doubts yet. Ask the first question.</string>
     <string name="empty_tutors">No tutors yet. Offer your own session.</string>
+    <string name="home_upcoming_label">Upcoming</string>
+    <string name="home_upcoming_title">My upcoming events</string>
     <string name="home_academic_hub_title">Academic hub</string>
     <string name="home_academic_hub_body">Notes, papers, doubts and peer tutors in one place.</string>
     <string name="home_academic_hub_action">Open academic hub</string>

@@ -14,7 +14,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
+            android:background="?android:attr/colorBackground"
             app:navigationIcon="@drawable/ic_back"
             app:title="@string/title_edit_profile"
             app:titleTextColor="?attr/colorOnSurface" />
@@ -43,7 +43,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnChangePhoto"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.CampusSync.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -51,7 +51,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDisplayName"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.CampusSync.TextInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_display_name">
@@ -74,7 +74,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilCollege"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.CampusSync.TextInput.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"
@@ -90,7 +90,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDepartment"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.CampusSync.TextInput.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"
@@ -106,7 +106,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilCourse"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.CampusSync.TextInput.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"
@@ -122,7 +122,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilSemester"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.CampusSync.TextInput.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"
@@ -138,7 +138,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilDesignation"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.CampusSync.TextInput.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"
@@ -155,7 +155,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilAcademicYear"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox.ExposedDropdownMenu"
+                style="@style/Widget.CampusSync.TextInput.Dropdown"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"
@@ -171,7 +171,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilBio"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.CampusSync.TextInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"
@@ -188,7 +188,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilSkills"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.CampusSync.TextInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"
@@ -204,7 +204,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilInterests"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.CampusSync.TextInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"

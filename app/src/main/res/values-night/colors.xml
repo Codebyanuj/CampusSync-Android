@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Warm charcoal night palette that mirrors the daytime ink-and-brass scheme. -->
+    <color name="primary">#A9C7E6</color>
+    <color name="on_primary">#0B2438</color>
+    <color name="primary_container">#23445F</color>
+    <color name="on_primary_container">#D6E5F4</color>
+
+    <color name="secondary">#E4B77A</color>
+    <color name="on_secondary">#3A2405</color>
+    <color name="secondary_container">#57390F</color>
+    <color name="on_secondary_container">#F9E4C4</color>
+
+    <color name="tertiary">#9ACDC0</color>
+    <color name="on_tertiary">#082B24</color>
+    <color name="tertiary_container">#20473F</color>
+    <color name="on_tertiary_container">#CDE9E1</color>
+
+    <color name="background">#131210</color>
+    <color name="on_background">#EDE7DC</color>
+    <color name="surface">#1A1916</color>
+    <color name="on_surface">#EDE7DC</color>
+    <color name="surface_variant">#3A362E</color>
+    <color name="on_surface_variant">#C4BDB0</color>
+    <color name="surface_tint">#A9C7E6</color>
+
+    <color name="surface_container_lowest">#0E0D0B</color>
+    <color name="surface_container_low">#1F1D19</color>
+    <color name="surface_container">#24221D</color>
+    <color name="surface_container_high">#2C2923</color>
+    <color name="surface_container_highest">#35312A</color>
+
+    <color name="error">#F2B8B5</color>
+    <color name="on_error">#601410</color>
+    <color name="error_container">#8C1D18</color>
+    <color name="on_error_container">#F9DEDC</color>
+
+    <color name="outline">#8E887B</color>
+    <color name="outline_variant">#3E3A32</color>
+
+    <color name="inverse_surface">#EDE7DC</color>
+    <color name="inverse_on_surface">#2F2C27</color>
+    <color name="inverse_primary">#16324C</color>
+
+    <color name="success">#8FD694</color>
+    <color name="warning">#F0BE7A</color>
+    <color name="star">#E4B77A</color>
+
+    <color name="hero_start">#1C3B57</color>
+    <color name="hero_end">#2B5B7C</color>
+    <color name="hero_kicker">#A9C7E6</color>
+    <color name="hero_body">#D7E3EE</color>
+    <color name="hero_rule">#E4B77A</color>
+</resources>

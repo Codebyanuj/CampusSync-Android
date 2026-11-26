@@ -18,7 +18,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
+            android:background="?android:attr/colorBackground"
             app:title="@string/title_groups"
             app:titleTextColor="?attr/colorOnSurface" />
     </com.google.android.material.appbar.AppBarLayout>
@@ -78,7 +78,7 @@
         android:id="@+id/loadingOverlay"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="?attr/colorSurface"
+        android:background="?android:attr/colorBackground"
         android:clickable="true"
         android:focusable="true"
         android:visibility="gone"
@@ -113,7 +113,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnRetryError"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Widget.CampusSync.Button.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/retry" />

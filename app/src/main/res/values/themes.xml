@@ -17,17 +17,50 @@
         <item name="colorOnError">@color/on_error</item>
         <item name="colorErrorContainer">@color/error_container</item>
         <item name="colorOnErrorContainer">@color/on_error_container</item>
+
         <item name="android:colorBackground">@color/background</item>
         <item name="colorSurface">@color/surface</item>
         <item name="colorOnSurface">@color/on_surface</item>
         <item name="colorSurfaceVariant">@color/surface_variant</item>
         <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
+        <item name="colorSurfaceContainerLowest">@color/surface_container_lowest</item>
+        <item name="colorSurfaceContainerLow">@color/surface_container_low</item>
+        <item name="colorSurfaceContainer">@color/surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_container_high</item>
+        <item name="colorSurfaceContainerHighest">@color/surface_container_highest</item>
         <item name="colorSurfaceInverse">@color/inverse_surface</item>
         <item name="colorOnSurfaceInverse">@color/inverse_on_surface</item>
         <item name="colorPrimaryInverse">@color/inverse_primary</item>
         <item name="colorOutline">@color/outline</item>
         <item name="colorOutlineVariant">@color/outline_variant</item>
-        <item name="android:statusBarColor">@color/primary</item>
+
+        <!-- Type: serif display voice, clean sans for reading. -->
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.CampusSync.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.CampusSync.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.CampusSync.DisplaySmall</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.CampusSync.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.CampusSync.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.CampusSync.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.CampusSync.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.CampusSync.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.CampusSync.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.CampusSync.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.CampusSync.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.CampusSync.BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.CampusSync.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.CampusSync.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.CampusSync.LabelSmall</item>
+
+        <!-- Components -->
+        <item name="materialCardViewStyle">@style/Widget.CampusSync.Card</item>
+        <item name="materialButtonStyle">@style/Widget.CampusSync.Button</item>
+        <item name="chipStyle">@style/Widget.CampusSync.Chip.Filter</item>
+        <item name="textInputStyle">@style/Widget.CampusSync.TextInput</item>
+        <item name="toolbarStyle">@style/Widget.CampusSync.Toolbar</item>
+
+        <item name="android:statusBarColor">@color/surface</item>
         <item name="android:navigationBarColor">@color/surface</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:windowLightStatusBar">true</item>
     </style>
 </resources>

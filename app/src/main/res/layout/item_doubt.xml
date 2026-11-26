@@ -4,9 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/spacing_sm"
-    app:cardCornerRadius="@dimen/corner_radius"
-    app:cardElevation="@dimen/card_elevation">
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="@dimen/corner_radius">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -32,7 +31,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipDoubtSolved"
-                style="@style/Widget.Material3.Chip.Assist"
+                style="@style/Widget.CampusSync.Chip.Assist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_sm"
@@ -40,8 +39,9 @@
                 android:focusable="false"
                 android:text="@string/doubt_solved"
                 android:visibility="gone"
-                app:chipBackgroundColor="?attr/colorPrimaryContainer"
+                app:chipBackgroundColor="@color/tertiary_container"
                 app:chipMinHeight="24dp"
+                app:ensureMinTouchTargetSize="false"
                 tools:visibility="visible" />
         </LinearLayout>
 
@@ -49,7 +49,7 @@
             android:id="@+id/tvDoubtBody"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_xs"
+            android:layout_marginTop="6dp"
             android:ellipsize="end"
             android:maxLines="2"
             android:textAppearance="?attr/textAppearanceBodySmall"
@@ -59,18 +59,17 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
             android:gravity="center_vertical"
             android:orientation="horizontal">
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipDoubtSubject"
-                style="@style/Widget.Material3.Chip.Assist"
+                style="@style/Widget.CampusSync.Chip.Assist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="false"
                 android:focusable="false"
-                app:chipMinHeight="24dp"
                 tools:text="Algorithms" />
 
             <TextView

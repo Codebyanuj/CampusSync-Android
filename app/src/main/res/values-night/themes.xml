@@ -1,33 +1,64 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <style name="Theme.CampusSync" parent="Theme.Material3.Dark.NoActionBar">
-        <item name="colorPrimary">#D0BCFF</item>
-        <item name="colorOnPrimary">#381E72</item>
-        <item name="colorPrimaryContainer">#4F378B</item>
-        <item name="colorOnPrimaryContainer">#EADDFF</item>
-        <item name="colorSecondary">#CCC2DC</item>
-        <item name="colorOnSecondary">#332D41</item>
-        <item name="colorSecondaryContainer">#4A4458</item>
-        <item name="colorOnSecondaryContainer">#E8DEF8</item>
-        <item name="colorTertiary">#EFB8C8</item>
-        <item name="colorOnTertiary">#492532</item>
-        <item name="colorTertiaryContainer">#633B48</item>
-        <item name="colorOnTertiaryContainer">#FFD8E4</item>
-        <item name="colorError">#F2B8B5</item>
-        <item name="colorOnError">#601410</item>
-        <item name="colorErrorContainer">#8C1D18</item>
-        <item name="colorOnErrorContainer">#F9DEDC</item>
-        <item name="android:colorBackground">#1C1B1F</item>
-        <item name="colorSurface">#1C1B1F</item>
-        <item name="colorOnSurface">#E6E1E5</item>
-        <item name="colorSurfaceVariant">#49454F</item>
-        <item name="colorOnSurfaceVariant">#CAC4D0</item>
-        <item name="colorSurfaceInverse">#E6E1E5</item>
-        <item name="colorOnSurfaceInverse">#313033</item>
-        <item name="colorPrimaryInverse">#6750A4</item>
-        <item name="colorOutline">#938F99</item>
-        <item name="colorOutlineVariant">#49454F</item>
+        <item name="colorPrimary">@color/primary</item>
+        <item name="colorOnPrimary">@color/on_primary</item>
+        <item name="colorPrimaryContainer">@color/primary_container</item>
+        <item name="colorOnPrimaryContainer">@color/on_primary_container</item>
+        <item name="colorSecondary">@color/secondary</item>
+        <item name="colorOnSecondary">@color/on_secondary</item>
+        <item name="colorSecondaryContainer">@color/secondary_container</item>
+        <item name="colorOnSecondaryContainer">@color/on_secondary_container</item>
+        <item name="colorTertiary">@color/tertiary</item>
+        <item name="colorOnTertiary">@color/on_tertiary</item>
+        <item name="colorTertiaryContainer">@color/tertiary_container</item>
+        <item name="colorOnTertiaryContainer">@color/on_tertiary_container</item>
+        <item name="colorError">@color/error</item>
+        <item name="colorOnError">@color/on_error</item>
+        <item name="colorErrorContainer">@color/error_container</item>
+        <item name="colorOnErrorContainer">@color/on_error_container</item>
+
+        <item name="android:colorBackground">@color/background</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/on_surface</item>
+        <item name="colorSurfaceVariant">@color/surface_variant</item>
+        <item name="colorOnSurfaceVariant">@color/on_surface_variant</item>
+        <item name="colorSurfaceContainerLowest">@color/surface_container_lowest</item>
+        <item name="colorSurfaceContainerLow">@color/surface_container_low</item>
+        <item name="colorSurfaceContainer">@color/surface_container</item>
+        <item name="colorSurfaceContainerHigh">@color/surface_container_high</item>
+        <item name="colorSurfaceContainerHighest">@color/surface_container_highest</item>
+        <item name="colorSurfaceInverse">@color/inverse_surface</item>
+        <item name="colorOnSurfaceInverse">@color/inverse_on_surface</item>
+        <item name="colorPrimaryInverse">@color/inverse_primary</item>
+        <item name="colorOutline">@color/outline</item>
+        <item name="colorOutlineVariant">@color/outline_variant</item>
+
+        <item name="textAppearanceDisplayLarge">@style/TextAppearance.CampusSync.DisplayLarge</item>
+        <item name="textAppearanceDisplayMedium">@style/TextAppearance.CampusSync.DisplayMedium</item>
+        <item name="textAppearanceDisplaySmall">@style/TextAppearance.CampusSync.DisplaySmall</item>
+        <item name="textAppearanceHeadlineLarge">@style/TextAppearance.CampusSync.HeadlineLarge</item>
+        <item name="textAppearanceHeadlineMedium">@style/TextAppearance.CampusSync.HeadlineMedium</item>
+        <item name="textAppearanceHeadlineSmall">@style/TextAppearance.CampusSync.HeadlineSmall</item>
+        <item name="textAppearanceTitleLarge">@style/TextAppearance.CampusSync.TitleLarge</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.CampusSync.TitleMedium</item>
+        <item name="textAppearanceTitleSmall">@style/TextAppearance.CampusSync.TitleSmall</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.CampusSync.BodyLarge</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.CampusSync.BodyMedium</item>
+        <item name="textAppearanceBodySmall">@style/TextAppearance.CampusSync.BodySmall</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.CampusSync.LabelLarge</item>
+        <item name="textAppearanceLabelMedium">@style/TextAppearance.CampusSync.LabelMedium</item>
+        <item name="textAppearanceLabelSmall">@style/TextAppearance.CampusSync.LabelSmall</item>
+
+        <item name="materialCardViewStyle">@style/Widget.CampusSync.Card</item>
+        <item name="materialButtonStyle">@style/Widget.CampusSync.Button</item>
+        <item name="chipStyle">@style/Widget.CampusSync.Chip.Filter</item>
+        <item name="textInputStyle">@style/Widget.CampusSync.TextInput</item>
+        <item name="toolbarStyle">@style/Widget.CampusSync.Toolbar</item>
+
         <item name="android:statusBarColor">@color/surface</item>
         <item name="android:navigationBarColor">@color/surface</item>
+        <item name="android:windowBackground">@color/background</item>
+        <item name="android:windowLightStatusBar">false</item>
     </style>
 </resources>

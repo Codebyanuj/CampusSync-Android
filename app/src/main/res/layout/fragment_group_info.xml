@@ -16,7 +16,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
+            android:background="?android:attr/colorBackground"
             app:menu="@menu/menu_group_info"
             app:navigationIcon="@drawable/ic_back"
             app:title="@string/title_group_info"
@@ -65,7 +65,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnChangePhoto"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.CampusSync.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_horizontal"
@@ -86,7 +86,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAddMembers"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.CampusSync.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_md"
@@ -94,7 +94,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnLeaveGroup"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.CampusSync.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"

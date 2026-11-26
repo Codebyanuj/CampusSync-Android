@@ -9,7 +9,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorSurface"
+        android:background="?android:attr/colorBackground"
         app:navigationIcon="@drawable/ic_back"
         app:title="@string/title_create_post"
         app:titleTextColor="?attr/colorOnSurface" />
@@ -28,7 +28,7 @@
 
             <com.google.android.material.textfield.TextInputLayout
                 android:id="@+id/tilContent"
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                style="@style/Widget.CampusSync.TextInput"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/hint_post_content">
@@ -76,7 +76,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPickImage"
-                style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                style="@style/Widget.CampusSync.Button.Outlined.Icon"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_md"

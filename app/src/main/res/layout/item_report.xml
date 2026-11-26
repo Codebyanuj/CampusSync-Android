@@ -69,21 +69,21 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReveal"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.CampusSync.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/reveal_author" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnDismiss"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.CampusSync.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/dismiss" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnResolve"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.CampusSync.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/resolve" />

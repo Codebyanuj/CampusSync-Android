@@ -15,7 +15,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
+            android:background="?android:attr/colorBackground"
             app:navigationIcon="@drawable/ic_back"
             app:title="@string/title_upload_resource"
             app:titleTextColor="?attr/colorOnSurface" />
@@ -35,7 +35,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnPickFile"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.CampusSync.Button.Outlined"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="@string/upload_pick_file" />
@@ -154,7 +154,7 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipUploadNotes"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
@@ -162,21 +162,21 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipUploadPdf"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/resource_type_pdf" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipUploadSlides"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/resource_type_slides" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipUploadPaper"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/resource_type_paper" />

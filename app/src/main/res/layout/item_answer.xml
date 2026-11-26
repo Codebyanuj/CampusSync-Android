@@ -39,7 +39,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipAccepted"
-                style="@style/Widget.Material3.Chip.Assist"
+                style="@style/Widget.CampusSync.Chip.Assist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:clickable="false"
@@ -52,7 +52,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnAccept"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.CampusSync.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/doubt_accept"

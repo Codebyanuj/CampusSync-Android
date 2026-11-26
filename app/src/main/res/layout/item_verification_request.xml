@@ -86,14 +86,14 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnReject"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.CampusSync.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/verify_reject" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnApprove"
-                style="@style/Widget.Material3.Button.OutlinedButton"
+                style="@style/Widget.CampusSync.Button.Outlined"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginStart="@dimen/spacing_xs"

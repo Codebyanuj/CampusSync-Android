@@ -17,7 +17,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
+            android:background="?android:attr/colorBackground"
             app:navigationIcon="@drawable/ic_back"
             app:title="@string/title_boards"
             app:titleTextColor="?attr/colorOnSurface" />
@@ -31,7 +31,7 @@
 
         <com.google.android.material.textfield.TextInputLayout
             android:id="@+id/tilSearch"
-            style="@style/Widget.Material3.TextInputLayout.OutlinedBox.Dense"
+            style="@style/Widget.CampusSync.TextInput.Dense"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginStart="@dimen/spacing_sm"
@@ -60,7 +60,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipBoards"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.CampusSync.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:checked="true"
@@ -68,7 +68,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipTrending"
-                style="@style/Widget.Material3.Chip.Filter"
+                style="@style/Widget.CampusSync.Chip.Filter"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/boards_tab_trending" />

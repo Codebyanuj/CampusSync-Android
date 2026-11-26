@@ -13,12 +13,12 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:padding="@dimen/spacing_sm">
+        android:padding="14dp">
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivEventImage"
-            android:layout_width="80dp"
-            android:layout_height="80dp"
+            android:layout_width="88dp"
+            android:layout_height="88dp"
             android:contentDescription="@null"
             android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.CampusSync.Corner.Medium" />
@@ -75,7 +75,7 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipCategory"
-                    style="@style/Widget.Material3.Chip.Assist"
+                    style="@style/Widget.CampusSync.Chip.Assist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="false"
@@ -99,7 +99,7 @@
 
             <com.google.android.material.chip.Chip
                 android:id="@+id/chipJoined"
-                style="@style/Widget.Material3.Chip.Assist"
+                style="@style/Widget.CampusSync.Chip.Assist"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_xs"

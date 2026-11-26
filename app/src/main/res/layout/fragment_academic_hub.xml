@@ -5,19 +5,22 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
     tools:context="com.campussync.app.ui.academics.AcademicHubFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+        android:background="?android:attr/colorBackground"
+        android:fitsSystemWindows="true"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
+            android:background="?android:attr/colorBackground"
             app:menu="@menu/menu_academic_hub"
             app:title="@string/title_academic_hub"
             app:titleTextColor="?attr/colorOnSurface" />
@@ -32,16 +35,18 @@
         <EditText
             android:id="@+id/etSearch"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginHorizontal="@dimen/spacing_md"
-            android:layout_marginTop="@dimen/spacing_sm"
+            android:layout_height="48dp"
+            android:layout_marginHorizontal="@dimen/screen_padding"
+            android:layout_marginTop="@dimen/spacing_xs"
             android:autofillHints=""
             android:background="@drawable/bg_card"
+            android:drawableStart="@drawable/ic_search"
+            android:drawablePadding="10dp"
+            android:drawableTint="?attr/colorOnSurfaceVariant"
             android:hint="@string/search_academic_hub"
             android:importantForAutofill="no"
             android:inputType="text"
             android:paddingHorizontal="@dimen/spacing_md"
-            android:paddingVertical="@dimen/spacing_sm"
             android:textAppearance="?attr/textAppearanceBodyMedium"
             android:textColor="?attr/colorOnSurface"
             android:textColorHint="?attr/colorOnSurfaceVariant" />
@@ -49,7 +54,8 @@
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/spacing_sm"
+            android:layout_marginTop="12dp"
+            android:paddingHorizontal="12dp"
             android:scrollbars="none">
 
             <com.google.android.material.chip.ChipGroup
@@ -62,7 +68,7 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipAllTypes"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
@@ -70,28 +76,28 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipNotes"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/resource_type_notes" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipPdf"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/resource_type_pdf" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSlides"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/resource_type_slides" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipPapers"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/resource_type_paper" />
@@ -102,7 +108,7 @@
             android:id="@+id/chipQuickFilters"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:paddingHorizontal="@dimen/spacing_sm"
+            android:paddingHorizontal="12dp"
             android:scrollbars="none">
 
             <com.google.android.material.chip.ChipGroup
@@ -113,21 +119,21 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipMyDepartment"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/filter_my_department" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipMySemester"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/filter_my_semester" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSaved"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/filter_saved" />
@@ -138,7 +144,20 @@
             android:id="@+id/tabLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            app:tabMode="fixed" />
+            android:layout_marginTop="@dimen/spacing_sm"
+            app:tabIndicatorColor="?attr/colorSecondary"
+            app:tabIndicatorFullWidth="true"
+            app:tabIndicatorHeight="2dp"
+            app:tabMode="fixed"
+            app:tabRippleColor="@null"
+            app:tabSelectedTextColor="?attr/colorOnSurface"
+            app:tabTextAppearance="@style/TextAppearance.CampusSync.LabelLarge"
+            app:tabTextColor="?attr/colorOnSurfaceVariant" />
+
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="?attr/colorOutlineVariant" />
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -150,7 +169,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:padding="@dimen/spacing_sm"
+                android:paddingStart="@dimen/screen_padding"
+                android:paddingTop="12dp"
+                android:paddingEnd="@dimen/screen_padding"
+                android:paddingBottom="@dimen/spacing_lg"
                 tools:listitem="@layout/item_resource" />
 
             <androidx.recyclerview.widget.RecyclerView
@@ -158,7 +180,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:padding="@dimen/spacing_sm"
+                android:paddingStart="@dimen/screen_padding"
+                android:paddingTop="12dp"
+                android:paddingEnd="@dimen/screen_padding"
+                android:paddingBottom="@dimen/spacing_lg"
                 android:visibility="gone"
                 tools:listitem="@layout/item_doubt" />
 
@@ -167,7 +192,10 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:clipToPadding="false"
-                android:padding="@dimen/spacing_sm"
+                android:paddingStart="@dimen/screen_padding"
+                android:paddingTop="12dp"
+                android:paddingEnd="@dimen/screen_padding"
+                android:paddingBottom="@dimen/spacing_lg"
                 android:visibility="gone"
                 tools:listitem="@layout/item_tutor" />
 
@@ -182,24 +210,26 @@
                 tools:visibility="visible">
 
                 <ImageView
-                    android:layout_width="80dp"
-                    android:layout_height="80dp"
-                    android:alpha="0.4"
+                    android:layout_width="56dp"
+                    android:layout_height="56dp"
+                    android:alpha="0.3"
                     android:contentDescription="@null"
-                    android:src="@drawable/ic_academic" />
+                    android:src="@drawable/ic_academic"
+                    app:tint="?attr/colorOnSurfaceVariant" />
 
                 <TextView
                     android:id="@+id/tvEmpty"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_md"
+                    android:layout_marginTop="@dimen/spacing_sm"
                     android:gravity="center"
                     android:text="@string/empty_resources"
-                    android:textAppearance="?attr/textAppearanceBodyLarge"
+                    android:textAppearance="?attr/textAppearanceBodyMedium"
                     android:textColor="?attr/colorOnSurfaceVariant" />
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRetry"
+                    style="@style/Widget.CampusSync.Button.Outlined"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="@dimen/spacing_md"

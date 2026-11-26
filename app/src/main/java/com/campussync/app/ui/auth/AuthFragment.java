@@ -166,9 +166,11 @@ public class AuthFragment extends Fragment {
     private void updateRoleFields() {
         if (binding == null) return;
         boolean faculty = UserProfile.ROLE_FACULTY.equals(role);
-        binding.tilCourse.setVisibility(faculty ? View.GONE : View.VISIBLE);
-        binding.tilSemester.setVisibility(faculty ? View.GONE : View.VISIBLE);
-        binding.tilDesignation.setVisibility(faculty ? View.VISIBLE : View.GONE);
+        // Academic fields belong to registration only; signing in asks for the account alone.
+        boolean studentSignUp = isRegisterMode && !faculty;
+        binding.tilCourse.setVisibility(studentSignUp ? View.VISIBLE : View.GONE);
+        binding.tilSemester.setVisibility(studentSignUp ? View.VISIBLE : View.GONE);
+        binding.tilDesignation.setVisibility(isRegisterMode && faculty ? View.VISIBLE : View.GONE);
     }
 
     private void submit() {

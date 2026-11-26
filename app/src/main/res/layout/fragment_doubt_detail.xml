@@ -15,7 +15,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
+            android:background="?android:attr/colorBackground"
             app:navigationIcon="@drawable/ic_back"
             app:title="@string/title_doubt"
             app:titleTextColor="?attr/colorOnSurface" />
@@ -48,7 +48,7 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSubject"
-                    style="@style/Widget.Material3.Chip.Assist"
+                    style="@style/Widget.CampusSync.Chip.Assist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:clickable="false"
@@ -57,7 +57,7 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSolved"
-                    style="@style/Widget.Material3.Chip.Assist"
+                    style="@style/Widget.CampusSync.Chip.Assist"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/spacing_sm"
@@ -88,7 +88,7 @@
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/btnMarkSolved"
-                style="@style/Widget.Material3.Button.TextButton"
+                style="@style/Widget.CampusSync.Button.Text"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="@dimen/spacing_sm"

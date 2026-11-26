@@ -10,7 +10,7 @@
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="?attr/actionBarSize"
-        android:background="?attr/colorSurface"
+        android:background="?android:attr/colorBackground"
         app:menu="@menu/menu_discussion"
         app:navigationIcon="@drawable/ic_back"
         app:title="@string/title_boards"
@@ -61,7 +61,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnUpvote"
-                    style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                    style="@style/Widget.CampusSync.Button.Outlined.Icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/upvote"
@@ -79,7 +79,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnDownvote"
-                    style="@style/Widget.Material3.Button.OutlinedButton.Icon"
+                    style="@style/Widget.CampusSync.Button.Outlined.Icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/downvote"
@@ -155,7 +155,7 @@
 
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnCancelReply"
-            style="@style/Widget.Material3.Button.TextButton"
+            style="@style/Widget.CampusSync.Button.Text"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/cancel_reply_action" />

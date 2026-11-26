@@ -3,7 +3,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="?attr/colorSurface">
+    android:background="?android:attr/colorBackground">
 
     <LinearLayout
         android:layout_width="wrap_content"
@@ -20,8 +20,9 @@
             android:layout_height="112dp"
             android:background="@drawable/bg_circle_primary"
             android:contentDescription="@string/app_name"
-            android:padding="28dp"
-            android:src="@drawable/ic_launcher_foreground" />
+            android:padding="26dp"
+            android:src="@drawable/ic_academic"
+            app:tint="?attr/colorPrimary" />
 
         <TextView
             android:layout_width="wrap_content"

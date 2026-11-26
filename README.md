@@ -155,6 +155,27 @@ cd functions && npm install
 firebase deploy --only functions
 ```
 
+## Design system
+
+The UI runs on one deliberate system rather than stock Material defaults; every token lives in
+`res/values/styles.xml`, `colors.xml`, `themes.xml` and `dimens.xml`, so a change there restyles all
+80 layouts at once.
+
+- **Palette — "Campus Paper"**: ink navy `#16324C` for structure, brass `#9A5B16` for emphasis and
+  links, sage `#2C6357` for success, on a warm paper canvas `#F7F4ED` with near-white cards
+  `#FFFDF9`. `values-night` carries a matching warm-charcoal dark scheme.
+- **Type**: the system serif (Noto Serif) for display, headlines, screen titles and the wordmark;
+  humanist sans for everything read at length; all-caps, 0.16-letter-spaced *eyebrow* labels above
+  sections. All fifteen Material text roles are overridden once in `themes.xml`.
+- **Components**: hairline cards (20dp radius, 1dp `colorOutlineVariant` stroke, no shadow), 14dp
+  buttons with a 52dp minimum height, pill filter chips that turn brass when selected, 14dp
+  outlined form fields, a serif toolbar on the paper background, and a bottom bar with a 1dp
+  divider and a `primaryContainer` pill behind the active tab.
+- **Screens rebuilt by hand**: sign in, splash and onboarding mark, the home masthead and academic
+  hub tile, the academic hub (search, chips, tabs), and the resource, doubt, tutor and event cards.
+  Signing in now shows only the account fields; course, semester, college and the rest belong to
+  registration.
+
 ## Setup
 
 1. Create a Firebase project and add an Android app with package `com.campussync.app`.
@@ -325,6 +346,9 @@ app/src/main/java/com/campussync/app/
   ledger stays empty and the Karma screen shows zero. The award decisions themselves are covered
   by `node tools/karma-test.js` and the ledger's rules by the emulator suite.
 - The balance is the sum of the newest 200 awards; the screen says so when the page is full.
+- The visual pass was checked by building and running on a Pixel 7 / API 37 emulator for the splash
+  and sign-in screens; the signed-in tabs (home, academic hub, feed, events) were not re-checked
+  on a device because doing so needs a real account.
 - `storage.rules` could not be exercised locally: the Storage emulator reports a null
   `request.resource.contentType` for media uploads, which denies even the pre-existing
   profile-photo rule. The Firestore metadata rules, the upload validator (JVM unit test) and the

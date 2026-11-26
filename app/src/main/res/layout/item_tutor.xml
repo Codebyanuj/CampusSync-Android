@@ -4,9 +4,8 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_marginBottom="@dimen/spacing_sm"
-    app:cardCornerRadius="@dimen/corner_radius"
-    app:cardElevation="@dimen/card_elevation">
+    android:layout_marginBottom="10dp"
+    app:cardCornerRadius="@dimen/corner_radius">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -17,16 +16,17 @@
 
         <com.google.android.material.imageview.ShapeableImageView
             android:id="@+id/ivTutorAvatar"
-            android:layout_width="48dp"
-            android:layout_height="48dp"
+            android:layout_width="52dp"
+            android:layout_height="52dp"
+            android:background="@drawable/bg_circle_primary"
             android:contentDescription="@null"
             android:scaleType="centerCrop"
-            app:shapeAppearanceOverlay="@style/ShapeAppearance.CampusSync.Corner.Medium" />
+            app:shapeAppearanceOverlay="@style/ShapeAppearance.CampusSync.Corner.Full" />
 
         <LinearLayout
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_marginStart="@dimen/spacing_md"
+            android:layout_marginStart="14dp"
             android:layout_weight="1"
             android:orientation="vertical">
 
@@ -43,7 +43,7 @@
                 android:id="@+id/tvTutorSubjects"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="@dimen/spacing_xs"
+                android:layout_marginTop="2dp"
                 android:ellipsize="end"
                 android:maxLines="2"
                 android:textAppearance="?attr/textAppearanceBodySmall"
@@ -62,8 +62,9 @@
                 android:id="@+id/tvTutorRating"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="2dp"
                 android:textAppearance="?attr/textAppearanceLabelMedium"
-                android:textColor="?attr/colorSecondary"
+                android:textColor="@color/star"
                 tools:text="★ 4.8 (5 reviews)" />
         </LinearLayout>
     </LinearLayout>

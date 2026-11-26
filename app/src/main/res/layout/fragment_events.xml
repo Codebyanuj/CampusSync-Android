@@ -17,7 +17,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
+            android:background="?android:attr/colorBackground"
             app:menu="@menu/menu_events"
             app:title="@string/title_events"
             app:titleTextColor="?attr/colorOnSurface" />
@@ -62,7 +62,7 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipAllCategories"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
@@ -70,49 +70,49 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipAcademic"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/category_academic" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipCultural"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/category_cultural" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSports"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/category_sports" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipWorkshop"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/category_workshop" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipTech"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/category_tech" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipSocial"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/category_social" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipOther"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/category_other" />
@@ -135,7 +135,7 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipAnyDate"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:checked="true"
@@ -143,28 +143,28 @@
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipToday"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/filter_today" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipThisWeek"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/filter_this_week" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipThisMonth"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/filter_this_month" />
 
                 <com.google.android.material.chip.Chip
                     android:id="@+id/chipMyCollege"
-                    style="@style/Widget.Material3.Chip.Filter"
+                    style="@style/Widget.CampusSync.Chip.Filter"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/filter_my_college" />
@@ -229,7 +229,7 @@
                 android:id="@+id/loadingOverlay"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="?attr/colorSurface"
+                android:background="?android:attr/colorBackground"
                 android:clickable="true"
                 android:focusable="true"
                 android:visibility="gone">
@@ -262,7 +262,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnRetryError"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.CampusSync.Button.Text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/retry" />

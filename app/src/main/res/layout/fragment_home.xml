@@ -6,19 +6,22 @@
     android:id="@+id/coordinator"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?android:attr/colorBackground"
     tools:context="com.campussync.app.ui.home.HomeFragment">
 
     <com.google.android.material.appbar.AppBarLayout
         android:id="@+id/appBarLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:fitsSystemWindows="true">
+        android:background="?android:attr/colorBackground"
+        android:fitsSystemWindows="true"
+        app:elevation="0dp">
 
         <com.google.android.material.appbar.MaterialToolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
+            android:background="?android:attr/colorBackground"
             app:title="@string/nav_home"
             app:titleTextColor="?attr/colorOnSurface" />
     </com.google.android.material.appbar.AppBarLayout>
@@ -33,6 +36,7 @@
             android:id="@+id/scrollView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:background="?android:attr/colorBackground"
             android:fillViewport="true">
 
             <LinearLayout
@@ -40,49 +44,61 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
-                android:padding="@dimen/spacing_md">
+                android:paddingStart="@dimen/screen_padding"
+                android:paddingTop="@dimen/spacing_xs"
+                android:paddingEnd="@dimen/screen_padding"
+                android:paddingBottom="@dimen/spacing_xl">
 
-                <!-- Welcome card -->
-                <com.google.android.material.card.MaterialCardView
+                <!-- Greeting panel: the one dark surface in the app, used as a masthead. -->
+                <LinearLayout
                     android:id="@+id/cardWelcome"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/spacing_md"
-                    app:cardCornerRadius="@dimen/corner_radius"
-                    app:cardElevation="@dimen/card_elevation">
+                    android:background="@drawable/bg_hero"
+                    android:orientation="vertical"
+                    android:padding="@dimen/spacing_lg">
 
-                    <LinearLayout
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:letterSpacing="0.18"
+                        android:text="@string/app_name"
+                        android:textAllCaps="true"
+                        android:textAppearance="?attr/textAppearanceLabelSmall"
+                        android:textColor="@color/hero_kicker" />
+
+                    <TextView
+                        android:id="@+id/tvWelcomeTitle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
-                        android:padding="@dimen/spacing_md">
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:text="@string/welcome_message"
+                        android:textAppearance="?attr/textAppearanceHeadlineMedium"
+                        android:textColor="@color/on_primary" />
 
-                        <TextView
-                            android:id="@+id/tvWelcomeTitle"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="@string/welcome_message"
-                            android:textAppearance="?attr/textAppearanceHeadlineSmall" />
+                    <TextView
+                        android:id="@+id/tvWelcomeSub"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="@color/hero_body"
+                        tools:text="Good evening, Aarav. Three events this week." />
 
-                        <TextView
-                            android:id="@+id/tvWelcomeSub"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_xs"
-                            android:textAppearance="?attr/textAppearanceBodyMedium"
-                            android:textColor="?attr/colorOnSurfaceVariant"
-                            tools:text="Here is what is happening on campus." />
-                    </LinearLayout>
-                </com.google.android.material.card.MaterialCardView>
+                    <View
+                        android:layout_width="56dp"
+                        android:layout_height="2dp"
+                        android:layout_marginTop="@dimen/spacing_md"
+                        android:background="@color/hero_rule" />
+                </LinearLayout>
 
                 <!-- Academic hub entry -->
                 <com.google.android.material.card.MaterialCardView
                     android:id="@+id/cardAcademicHub"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginBottom="@dimen/spacing_md"
-                    app:cardCornerRadius="@dimen/corner_radius"
-                    app:cardElevation="@dimen/card_elevation">
+                    android:layout_marginTop="@dimen/spacing_sm"
+                    app:cardCornerRadius="@dimen/corner_radius">
 
                     <LinearLayout
                         android:layout_width="match_parent"
@@ -90,38 +106,65 @@
                         android:orientation="vertical"
                         android:padding="@dimen/spacing_md">
 
-                        <TextView
-                            android:layout_width="wrap_content"
+                        <LinearLayout
+                            android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:text="@string/home_academic_hub_title"
-                            android:textAppearance="?attr/textAppearanceTitleMedium" />
+                            android:gravity="center_vertical"
+                            android:orientation="horizontal">
+
+                            <ImageView
+                                android:layout_width="40dp"
+                                android:layout_height="40dp"
+                                android:background="@drawable/bg_circle_primary"
+                                android:contentDescription="@null"
+                                android:padding="9dp"
+                                android:src="@drawable/ic_academic"
+                                app:tint="?attr/colorPrimary" />
+
+                            <TextView
+                                android:layout_width="0dp"
+                                android:layout_height="wrap_content"
+                                android:layout_marginStart="@dimen/spacing_md"
+                                android:layout_weight="1"
+                                android:text="@string/home_academic_hub_title"
+                                android:textAppearance="?attr/textAppearanceTitleLarge" />
+                        </LinearLayout>
 
                         <TextView
                             android:layout_width="match_parent"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_xs"
+                            android:layout_marginTop="@dimen/spacing_sm"
                             android:text="@string/home_academic_hub_body"
-                            android:textAppearance="?attr/textAppearanceBodySmall"
+                            android:textAppearance="?attr/textAppearanceBodyMedium"
                             android:textColor="?attr/colorOnSurfaceVariant" />
 
                         <com.google.android.material.button.MaterialButton
                             android:id="@+id/btnOpenAcademicHub"
-                            style="@style/Widget.Material3.Button.TonalButton"
+                            style="@style/Widget.CampusSync.Button.Text"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:layout_marginTop="@dimen/spacing_sm"
+                            android:layout_gravity="end"
+                            android:layout_marginTop="@dimen/spacing_xs"
                             android:text="@string/home_academic_hub_action" />
                     </LinearLayout>
                 </com.google.android.material.card.MaterialCardView>
 
-                <!-- Joined events heading -->
+                <!-- Joined events -->
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="@dimen/spacing_lg"
+                    android:text="@string/home_upcoming_label"
+                    android:textAppearance="@style/TextAppearance.CampusSync.Eyebrow" />
+
                 <TextView
                     android:id="@+id/tvJoinedEventsTitle"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
                     android:layout_marginBottom="@dimen/spacing_sm"
-                    android:text="My upcoming events"
-                    android:textAppearance="?attr/textAppearanceTitleMedium" />
+                    android:text="@string/home_upcoming_title"
+                    android:textAppearance="?attr/textAppearanceHeadlineSmall" />
 
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/rvUpcomingEvents"
@@ -130,57 +173,46 @@
                     android:nestedScrollingEnabled="false"
                     tools:listitem="@layout/item_event_card" />
 
-                <TextView
-                    android:id="@+id/tvEmpty"
+                <!-- Quiet inline empty state; the masthead above stays visible. -->
+                <LinearLayout
+                    android:id="@+id/emptyState"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="@dimen/spacing_lg"
                     android:gravity="center"
-                    android:text="@string/empty_home"
-                    android:textAppearance="?attr/textAppearanceBodyLarge"
-                    android:textColor="?attr/colorOnSurfaceVariant"
+                    android:orientation="vertical"
+                    android:paddingVertical="@dimen/spacing_xl"
                     android:visibility="gone"
-                    tools:visibility="visible" />
+                    tools:visibility="visible">
+
+                    <ImageView
+                        android:layout_width="44dp"
+                        android:layout_height="44dp"
+                        android:alpha="0.35"
+                        android:contentDescription="@null"
+                        android:src="@drawable/ic_events"
+                        app:tint="?attr/colorOnSurfaceVariant" />
+
+                    <TextView
+                        android:id="@+id/tvEmpty"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="@dimen/spacing_sm"
+                        android:gravity="center"
+                        android:text="@string/empty_home"
+                        android:textAppearance="?attr/textAppearanceBodyMedium"
+                        android:textColor="?attr/colorOnSurfaceVariant" />
+                </LinearLayout>
 
                 <ProgressBar
                     android:id="@+id/progressBar"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_gravity="center"
-                    android:layout_marginTop="@dimen/spacing_xl"
+                    android:layout_marginTop="@dimen/spacing_lg"
                     android:visibility="gone" />
 
             </LinearLayout>
         </androidx.core.widget.NestedScrollView>
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
-    <!-- Empty state overlay shown when no user joined events exist -->
-    <LinearLayout
-        android:id="@+id/emptyState"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_gravity="center"
-        android:gravity="center"
-        android:orientation="vertical"
-        android:padding="@dimen/spacing_xl"
-        android:visibility="gone"
-        tools:visibility="visible">
-
-        <ImageView
-            android:layout_width="80dp"
-            android:layout_height="80dp"
-            android:src="@drawable/ic_events"
-            android:alpha="0.4"
-            android:contentDescription="@null" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginTop="@dimen/spacing_md"
-            android:gravity="center"
-            android:text="@string/empty_home"
-            android:textAppearance="?attr/textAppearanceBodyLarge"
-            android:textColor="?attr/colorOnSurfaceVariant" />
-    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -17,7 +17,7 @@
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
-            android:background="?attr/colorSurface"
+            android:background="?android:attr/colorBackground"
             app:menu="@menu/menu_profile"
             app:title="@string/title_profile"
             app:titleTextColor="?attr/colorOnSurface" />
@@ -134,7 +134,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnEditProfile"
-                    style="@style/Widget.Material3.Button.OutlinedButton"
+                    style="@style/Widget.CampusSync.Button.Outlined"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
@@ -142,7 +142,7 @@
 
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btnVerification"
-                    style="@style/Widget.Material3.Button.TextButton"
+                    style="@style/Widget.CampusSync.Button.Text"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="@dimen/spacing_xs"

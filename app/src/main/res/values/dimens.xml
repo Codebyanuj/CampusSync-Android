@@ -5,9 +5,11 @@
     <dimen name="spacing_md">16dp</dimen>
     <dimen name="spacing_lg">24dp</dimen>
     <dimen name="spacing_xl">32dp</dimen>
+    <dimen name="screen_padding">20dp</dimen>
     <dimen name="avatar_size">64dp</dimen>
-    <dimen name="card_elevation">2dp</dimen>
-    <dimen name="corner_radius">12dp</dimen>
+    <dimen name="card_elevation">0dp</dimen>
+    <dimen name="corner_radius">20dp</dimen>
+    <dimen name="corner_radius_lg">28dp</dimen>
     <dimen name="icon_size_sm">20dp</dimen>
     <dimen name="icon_size_md">24dp</dimen>
     <dimen name="text_size_body">14sp</dimen>
