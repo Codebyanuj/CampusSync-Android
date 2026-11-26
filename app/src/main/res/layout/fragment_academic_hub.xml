@@ -22,6 +22,7 @@
             android:layout_height="?attr/actionBarSize"
             android:background="?android:attr/colorBackground"
             app:menu="@menu/menu_academic_hub"
+            app:navigationIcon="@drawable/ic_back"
             app:title="@string/title_academic_hub"
             app:titleTextColor="?attr/colorOnSurface" />
     </com.google.android.material.appbar.AppBarLayout>

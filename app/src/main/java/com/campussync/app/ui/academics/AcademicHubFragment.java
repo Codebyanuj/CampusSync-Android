@@ -127,6 +127,10 @@ public class AcademicHubFragment extends Fragment {
 
         binding.btnRetry.setOnClickListener(v -> viewModel.retry());
 
+        // The hub hides the tab bar, so the toolbar carries the only way back besides a system back.
+        binding.toolbar.setNavigationOnClickListener(v ->
+                requireActivity().getOnBackPressedDispatcher().onBackPressed());
+
         binding.toolbar.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
             if (id == R.id.action_upload_resource) {

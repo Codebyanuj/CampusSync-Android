@@ -19,6 +19,7 @@
             android:id="@+id/ivEventImage"
             android:layout_width="88dp"
             android:layout_height="88dp"
+            android:background="@drawable/bg_image_placeholder"
             android:contentDescription="@null"
             android:scaleType="centerCrop"
             app:shapeAppearanceOverlay="@style/ShapeAppearance.CampusSync.Corner.Medium" />

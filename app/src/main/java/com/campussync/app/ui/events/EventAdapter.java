@@ -118,13 +118,16 @@ public class EventAdapter extends ListAdapter<Event, EventAdapter.EventViewHolde
             binding.chipJoined.setVisibility(joined ? View.VISIBLE : View.GONE);
 
             if (event.getImageUrl() != null && !event.getImageUrl().isEmpty()) {
+                binding.ivEventImage.setPadding(0, 0, 0, 0);
                 Glide.with(binding.ivEventImage)
                         .load(event.getImageUrl())
                         .placeholder(R.drawable.bg_image_placeholder)
                         .centerCrop()
                         .into(binding.ivEventImage);
             } else {
-                binding.ivEventImage.setImageResource(R.drawable.ic_events);
+                int inset = Math.round(22 * binding.getRoot().getResources().getDisplayMetrics().density);
+                binding.ivEventImage.setPadding(inset, inset, inset, inset);
+                binding.ivEventImage.setImageResource(R.drawable.ic_event_placeholder);
             }
 
             if (listener != null) {

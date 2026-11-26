@@ -69,6 +69,7 @@ public class HomeFragment extends Fragment {
             binding.emptyState.setVisibility(empty ? View.VISIBLE : View.GONE);
             binding.rvUpcomingEvents.setVisibility(empty ? View.GONE : View.VISIBLE);
             binding.tvJoinedEventsTitle.setVisibility(empty ? View.GONE : View.VISIBLE);
+            binding.tvUpcomingLabel.setVisibility(empty ? View.GONE : View.VISIBLE);
         });
 
         viewModel.getLoading().observe(getViewLifecycleOwner(), loading ->

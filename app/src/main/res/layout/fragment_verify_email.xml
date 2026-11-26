@@ -14,7 +14,7 @@
         android:background="@drawable/bg_circle_primary"
         android:contentDescription="@string/verify_email_title"
         android:padding="24dp"
-        android:src="@drawable/ic_notification"
+        android:src="@drawable/ic_notices"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
